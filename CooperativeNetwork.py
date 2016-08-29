@@ -1,0 +1,425 @@
+import pyNN.spiNNaker as ps
+import matplotlib
+matplotlib.use("Agg")	# needed for the ssh connection
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+class CooperativeNetwork(object):
+
+    def __init__(self, retinae={'left': None, 'right': None},
+                 max_disparity=0, cell_params=None,
+                 record_spikes=True, experiment_name="Experiment",
+                 visualize_spikes=True, verbose=False):
+        # IMPORTANT NOTE: This implementation assumes min_disparity = 0
+
+        assert retinae['left'] is not None and retinae['right'] is not None, \
+            "ERROR: Retinas are not initialised! Creating Network Failed."
+
+        dx = retinae['left'].dim_x
+        assert dx > max_disparity >= 0, "ERROR: Maximum Disparity Constant is illegal!"
+        self.max_disparity = max_disparity
+        self.min_disparity = 0
+        self.size = (2 * (dx - self.min_disparity) * (self.max_disparity - self.min_disparity + 1)
+                     - (self.max_disparity - self.min_disparity + 1) ** 2
+                     + self.max_disparity - self.min_disparity + 1) / 2
+        self.dim_x = dx
+        self.dim_y = retinae['left'].dim_y
+
+        # check this assertion before the actual network generation, since the former
+        # might take very long to complete.
+        assert retinae['left'].dim_x == retinae['right'].dim_x and \
+               retinae['left'].dim_y == retinae['right'].dim_y, \
+            "ERROR: Left and Right retina dimensions are not matching. Connecting Spike Sources to Network Failed."
+
+        # TODO: make parameter values dependent on the simulation time step
+        # (for the case 0.1 it is not tested completely and should serve more like an example)
+
+        # the notation for the synaptic parameters is as follows:
+        # B blocker, C collector, S spike source, (2, 4)
+        # w weight, d delay, (1)
+        # a one's own, z other, (3)
+        # i inhibition, e excitation  (5)
+        # If B is before C than the connection is from B to C.
+        # Example: dSaB would mean a dealy from a spike source to the one's own blocker neuron, and
+        # wSzB would be the weight from a spike source to the heterolateral blocker neuron.
+        params = {'neural': dict(), 'synaptic': dict(), 'topological': dict()}
+        simulation_time_step = 0.2
+        if simulation_time_step == 0.2:
+            params['neural'] = {'tau_E': 2.0,
+                                'tau_I': 2.0,
+                                'tau_mem': 2.07,
+                                'v_reset_blocker': -84.0,
+                                'v_reset_collector': -90.0}
+            params['synaptic'] = {'wBC': -20.5,
+                                  'dBC': simulation_time_step,
+                                  'wSC': 20.5,
+                                  'dSC': 1.6,
+                                  'wSaB': 22.5,
+                                  'dSaB': simulation_time_step,
+                                  'wSzB': -22.5,
+                                  'dSzB': simulation_time_step,
+                                  'wCCi': -50.0,
+                                  'dCCi': simulation_time_step,
+                                  'wCCe': 3.0,
+                                  'dCCe': simulation_time_step}
+            params['topological'] = {'radius_e': 1,
+                                     'radius_i': max(self.dim_x, self.dim_y)}
+        elif simulation_time_step == 0.1:
+            params['neural'] = {'tau_E': 1.0,
+                                'tau_I': 1.0,
+                                'tau_mem': 1.07,
+                                'v_reset_blocker': -92.0,
+                                'v_reset_collector': -102.0}
+            params['synaptic'] = {'wBC': -39.5,
+                                  'dBC': simulation_time_step,
+                                  'wSC': 39.5,
+                                  'dSC': 0.8,
+                                  'wSaB': 49.5,
+                                  'dSaB': simulation_time_step,
+                                  'wSzB': -39.5,
+                                  'dSzB': simulation_time_step,
+                                  'wCCi': -50.0,
+                                  'dCCi': simulation_time_step,
+                                  'wCCe': 3.0,
+                                  'dCCe': simulation_time_step}
+            params['topological'] = {'radius_e': 1,
+                                     'radius_i': max(self.dim_x, self.dim_y)}
+
+        self.cell_params = params if cell_params is None else cell_params
+
+        self.network = self._create_network(record_spikes=record_spikes,
+                                            verbose=verbose)
+
+        self._connect_spike_sources(retinae=retinae, verbose=verbose)
+
+        self.experiment_name = experiment_name
+        self.visualizer = None if not visualize_spikes else self._create_visualizer()
+
+    def _create_network(self, record_spikes=False, verbose=False):
+
+        if verbose:
+            print("INFO: Creating Cooperative Network of size {0}".format(self.size))
+
+        if record_spikes:
+            from pyNN.spiNNaker import record
+
+        network = []
+        neural_params = self.cell_params['neural']
+        for x in range(0, self.size):
+            blocker_columns = ps.Population(self.dim_y * 2,
+                                            ps.IF_curr_exp,
+                                            {'tau_syn_E': neural_params['tau_E'],
+                                             'tau_syn_I': neural_params['tau_I'],
+                                             'tau_m': neural_params['tau_mem'],
+                                             'v_reset': neural_params['v_reset_blocker']},
+                                            label="Blocker {0}".format(x))
+
+            collector_column = ps.Population(self.dim_y,
+                                             ps.IF_curr_exp,
+                                             {'tau_syn_E': neural_params['tau_E'],
+                                              'tau_syn_I': neural_params['tau_I'],
+                                              'tau_m': neural_params['tau_mem'],
+                                              'v_reset': neural_params['v_reset_collector']},
+                                             label="Collector {0}".format(x))
+
+            if record_spikes:
+                collector_column.record()  # records only the spikes
+                # collector_column.record_v()  # records the membrane potential -- very resource demanding!
+
+            network.append((blocker_columns, collector_column))
+
+        self._interconnect_neurons(network, verbose=verbose)
+        if self.dim_x > 1:
+            self._interconnect_neurons_inhexc(network, verbose)
+
+        return network
+
+    def _interconnect_neurons(self, network, verbose=False):
+
+        assert network is not None, \
+            "ERROR: Network is not initialised! Interconnecting failed."
+
+        synaptic_params = self.cell_params['synaptic']
+
+        # generate connectivity list: 0 untill dimensionRetinaY-1 for the left
+        # and dimensionRetinaY till dimensionRetinaY*2 - 1 for the right
+        connList = []
+        for y in range(0, self.dim_y):
+            connList.append((y, y, synaptic_params['wBC'], synaptic_params['dBC']))
+            connList.append((y + self.dim_y, y, synaptic_params['wBC'], synaptic_params['dBC']))
+
+        # connect the inhibitory neurons to the cell output neurons
+        if verbose:
+            print "INFO: Interconnecting Neurons. This may take a while."
+        for ensemble in network:
+            ps.Projection(ensemble[0], ensemble[1], ps.FromListConnector(connList), target='inhibitory')
+
+    def _interconnect_neurons_inhexc(self, network, verbose=False):
+
+        assert network is not None, \
+            "ERROR: Network is not initialised! Interconnecting for inhibitory and excitatory patterns failed."
+
+        if verbose and self.cell_params['topological']['radius_i'] < self.dim_x:
+            print "WARNING: Bad radius of inhibition. Uniquness constraint cannot be satisfied."
+        if verbose and 0 <= self.cell_params['topological']['radius_e'] > self.dim_x:
+            print "WARNING: Bad radius of excitation. "
+
+        # create lists with inhibitory along the Retina Right projective line
+        nbhoodInhL = []
+        nbhoodInhR = []
+        nbhoodExcX = []
+        nbhoodEcxY = []
+        # used for the triangular form of the matrix in order to remain within the square
+        if verbose:
+            print "INFO: Generating inhibitory and excitatory connectivity patterns."
+        # generate rows
+        limiter = self.max_disparity - self.min_disparity + 1
+        ensembleIndex = 0
+
+        while ensembleIndex < len(network):
+            if ensembleIndex / (self.max_disparity - self.min_disparity + 1) > \
+                                    (self.dim_x - self.min_disparity) - (self.max_disparity - self.min_disparity) - 1:
+                limiter -= 1
+                if limiter == 0:
+                    break
+            nbhoodInhL.append([ensembleIndex + disp for disp in range(0, limiter)])
+            ensembleIndex += limiter
+
+        ensembleIndex = len(network)
+
+        # generate columns
+        nbhoodInhR = [[x] for x in nbhoodInhL[0]]
+        shiftGlob = 0
+        for x in nbhoodInhL[1:]:
+            shiftGlob += 1
+            shift = 0
+
+            for e in x:
+                if (shift + 1) % (self.max_disparity - self.min_disparity + 1) == 0:
+                    nbhoodInhR.append([e])
+                else:
+                    nbhoodInhR[shift + shiftGlob].append(e)
+                shift += 1
+
+        # generate all diagonals
+        for diag in map(None, *nbhoodInhL):
+            sublist = []
+            for elem in diag:
+                if elem is not None:
+                    sublist.append(elem)
+            nbhoodExcX.append(sublist)
+
+        # generate all y-axis excitation
+        for x in range(0, self.dim_y):
+            for e in range(1, self.cell_params['topological']['radius_e'] + 1):
+                if x + e < self.dim_y:
+                    nbhoodEcxY.append(
+                        (x, x + e, self.cell_params['synaptic']['wCCe'], self.cell_params['synaptic']['dCCe']))
+                if x - e >= 0:
+                    nbhoodEcxY.append(
+                        (x, x - e, self.cell_params['synaptic']['wCCe'], self.cell_params['synaptic']['dCCe']))
+
+        # Store these lists as global parameters as they can be used to quickly match the spiking collector neuron
+        # with the corresponding pixel xy coordinates (same_disparity_indices)
+        # TODO: think of a better way to encode pixels: closed form formula would be perfect
+        # These are also used when connecting the spike sources to the network! (retina_proj_l, retina_proj_r)
+
+        global _retina_proj_l, _retina_proj_r, same_disparity_indices
+
+        _retina_proj_l = nbhoodInhL
+        _retina_proj_r = nbhoodInhR
+        same_disparity_indices = nbhoodExcX
+
+        if verbose:
+            print "INFO: Connecting neurons for internal excitation and inhibition."
+
+        for row in nbhoodInhL:
+            for pop in row:
+                for nb in row:
+                    if nb != pop:
+                        ps.Projection(network[pop][1],
+                                      network[nb][1],
+                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCi'],
+                                                           delays=self.cell_params['synaptic']['dCCi']),
+                                      target='inhibitory')
+        for col in nbhoodInhR:
+            for pop in col:
+                for nb in col:
+                    if nb != pop:
+                        ps.Projection(network[pop][1],
+                                      network[nb][1],
+                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCi'],
+                                                           delays=self.cell_params['synaptic']['dCCi']),
+                                      target='inhibitory')
+
+        for diag in nbhoodExcX:
+            for pop in diag:
+                for nb in range(1, self.cell_params['topological']['radius_e'] + 1):
+                    if diag.index(pop) + nb < len(diag):
+                        ps.Projection(network[pop][1],
+                                      network[diag[diag.index(pop) + nb]][1],
+                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCe'],
+                                                           delays=self.cell_params['synaptic']['dCCe']),
+                                      target='excitatory')
+                    if diag.index(pop) - nb >= 0:
+                        ps.Projection(network[pop][1],
+                                      network[diag[diag.index(pop) - nb]][1],
+                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCe'],
+                                                           delays=self.cell_params['synaptic']['dCCe']),
+                                      target='excitatory')
+
+        for ensemble in network:
+            ps.Projection(ensemble[1], ensemble[1], ps.FromListConnector(nbhoodEcxY), target='excitatory')
+
+    def _connect_spike_sources(self, retinae=None, verbose=False):
+
+        if verbose:
+            print "INFO: Connecting Spike Sources to Network."
+
+        global _retina_proj_l, _retina_proj_r
+
+        # left is 0--dimensionRetinaY-1; right is dimensionRetinaY--dimensionRetinaY*2-1
+        connListRetLBlockerL = []
+        connListRetLBlockerR = []
+        connListRetRBlockerL = []
+        connListRetRBlockerR = []
+        for y in range(0, self.dim_y):
+            connListRetLBlockerL.append((y, y,
+                                         self.cell_params['synaptic']['wSaB'],
+                                         self.cell_params['synaptic']['dSaB']))
+            connListRetLBlockerR.append((y, y + self.dim_y,
+                                         self.cell_params['synaptic']['wSzB'],
+                                         self.cell_params['synaptic']['dSzB']))
+            connListRetRBlockerL.append((y, y,
+                                         self.cell_params['synaptic']['wSzB'],
+                                         self.cell_params['synaptic']['dSzB']))
+            connListRetRBlockerR.append((y, y + self.dim_y,
+                                         self.cell_params['synaptic']['wSaB'],
+                                         self.cell_params['synaptic']['dSaB']))
+
+        retinaLeft = retinae['left'].pixel_columns
+        retinaRight = retinae['right'].pixel_columns
+        pixel = 0
+        for row in _retina_proj_l:
+            for pop in row:
+                ps.Projection(retinaLeft[pixel],
+                              self.network[pop][1],
+                              ps.OneToOneConnector(weights=self.cell_params['synaptic']['wSC'],
+                                                   delays=self.cell_params['synaptic']['dSC']),
+                              target='excitatory')
+                ps.Projection(retinaLeft[pixel],
+                              self.network[pop][0],
+                              ps.FromListConnector(connListRetLBlockerL),
+                              target='excitatory')
+                ps.Projection(retinaLeft[pixel],
+                              self.network[pop][0],
+                              ps.FromListConnector(connListRetLBlockerR),
+                              target='inhibitory')
+            pixel += 1
+
+        pixel = 0
+        for col in _retina_proj_r:
+            for pop in col:
+                ps.Projection(retinaRight[pixel], self.network[pop][1],
+                              ps.OneToOneConnector(weights=self.cell_params['synaptic']['wSC'],
+                                                   delays=self.cell_params['synaptic']['dSC']),
+                              target='excitatory')
+                ps.Projection(retinaRight[pixel],
+                              self.network[pop][0],
+                              ps.FromListConnector(connListRetRBlockerR),
+                              target='excitatory')
+                ps.Projection(retinaRight[pixel],
+                              self.network[pop][0],
+                              ps.FromListConnector(connListRetRBlockerL),
+                              target='inhibitory')
+            pixel += 1
+
+    def _create_visualizer(self):
+        return CooperativeNetwork.Visualizer(network=self)
+
+    def get_spikes(self, sort_by_time=True, save_spikes=False):
+        global same_disparity_indices, _retina_proj_l
+        spikes_per_population = [x[1].getSpikes() for x in self.network]
+        spikes = list()
+        # for each column population in the network, find the x,y coordinates corresponding to the neuron
+        # and the disparity. Then write them in the list and sort it by the timestamp value.
+        for col_index, col in enumerate(spikes_per_population, 0):  # it is 0-indexed
+            # find the disparity
+            disp = self.min_disparity
+            for d in range(0, self.max_disparity + 1):
+                if col_index in same_disparity_indices[d]:
+                    disp = d + self.min_disparity
+                    break
+            # for each spike in the population extract the timestamp and x,y coordinates
+            for spike in col:
+                x_coord = 0
+                for p in range(0, self.dim_x):
+                    if col_index in _retina_proj_l[p]:
+                        x_coord = p
+                        break
+                y_coord = int(spike[0])
+                spikes.append((round(spike[1], 1), x_coord+1, y_coord+1, disp))	# pixel coordinates are 1-indexed
+        if sort_by_time:
+            spikes.sort(key=lambda x: x[0])
+        if save_spikes:
+            if not os.path.exists("./spikes"):
+                os.makedirs("./spikes")
+	    i = 0
+	    while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
+                i += 1
+            with open('./spikes/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+                for s in spikes:
+                    f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
+        return spikes
+
+    def get_all_spikes(self, sort_by_disparity=True):
+        if sort_by_disparity:
+            global same_disparity_indices
+            spikes_per_disparity_map = []
+            for d in range(0, self.max_disparity - self.min_disparity + 1):
+                collector_cells = [self.network[x][1] for x in same_disparity_indices[d]]
+                spikes_per_disparity_map.append(sum([sum(x.get_spike_counts().values()) for x in collector_cells]))
+                return spikes_per_disparity_map
+        else:
+            all_spikes = [sum(sum(x[1].get_spikes_count().values() for x in self.network))]
+            return all_spikes
+
+    class Visualizer(object):
+
+        def __init__(self, network=None):
+            self.network = network
+
+        def disparity_histogram(self, over_time=False, save_figure=True, show_interactive=False):
+            if not over_time:
+                spikes_per_disparity = self.network.get_all_spikes(sort_by_disparity=True)
+                plt.bar(range(0, self.max_disparity - self.min_disparity + 1), spikes_per_disparity, align='center')
+            else:
+                disps = [x[3] for x in self.network.get_spikes(sort_by_time=True)]
+
+                x = range(0, len(disps))
+                y = disps
+
+                heatmap, xedges, yedges = np.histogram2d(y, x, bins=(self.network.max_disparity, 100))
+                # extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+
+                ax = plt.figure().add_subplot(111)
+                im = ax.imshow(heatmap, extent=[0, 10, 0, self.network.max_disparity], aspect=0.4, interpolation='none',
+                               origin='lower')
+                ax.set_xlabel("Time in s")
+                ax.set_ylabel("Disparity")
+                ax.set_aspect(0.5)
+
+                cbar = plt.colorbar(im, fraction=0.046, pad=0.03)
+                cbar.set_label('Number of events per time slot (0.1 s)', rotation=270)
+                cbar.ax.get_yaxis().labelpad = 15
+
+            if save_figure:
+                if not os.path.exists("./figures"):
+                    os.makedirs("./figures")
+                i = 0
+                while os.path.exists("./figures/{0}_{1}.png".format(self.network.experiment_name, i)):
+                    i += 1
+                plt.savefig("./figures/{0}_{1}.png".format(self.network.experiment_name, i))
+            if show_interactive:
+                plt.show()
