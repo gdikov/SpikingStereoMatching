@@ -1,3 +1,9 @@
+###
+# Date: August 2016
+# Author: Georgi Dikov
+# email: gvdikov93@gmail.com
+###
+
 import pyNN.spiNNaker as ps
 
 class SNNSimulation(object):

@@ -1,16 +1,26 @@
+###
+# Date: August 2016
+# Author: Georgi Dikov
+# email: gvdikov93@gmail.com
+###
+
 import pyNN.spiNNaker as ps
 import matplotlib
 matplotlib.use("Agg")	# needed for the ssh connection
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
 
+from moviepy.editor import VideoClip
+from moviepy.video.io.bindings import mplfig_to_npimage
+
 class CooperativeNetwork(object):
 
-    def __init__(self, retinae={'left': None, 'right': None},
+    def __init__(self, retinae=None,
                  max_disparity=0, cell_params=None,
                  record_spikes=True, experiment_name="Experiment",
-                 visualize_spikes=True, verbose=False):
+                 verbose=False):
         # IMPORTANT NOTE: This implementation assumes min_disparity = 0
 
         assert retinae['left'] is not None and retinae['right'] is not None, \
@@ -94,7 +104,6 @@ class CooperativeNetwork(object):
         self._connect_spike_sources(retinae=retinae, verbose=verbose)
 
         self.experiment_name = experiment_name
-        self.visualizer = None if not visualize_spikes else self._create_visualizer()
 
     def _create_network(self, record_spikes=False, verbose=False):
 
@@ -335,10 +344,17 @@ class CooperativeNetwork(object):
                               target='inhibitory')
             pixel += 1
 
-    def _create_visualizer(self):
-        return CooperativeNetwork.Visualizer(network=self)
+    def get_network_dimensions(self):
+        parameters = {'size':self.size,
+                      'dim_x':self.dim_x,
+                      'dim_y':self.dim_y,
+                      'min_d':self.min_disparity,
+                      'max_d':self.max_disparity}
+        return parameters
 
-    def get_spikes(self, sort_by_time=True, save_spikes=False):
+    """ this method returns (and saves) a full list of spike times
+    with the corresponding pixel location and disparities."""
+    def get_spikes(self, sort_by_time=True, save_spikes=True):
         global same_disparity_indices, _retina_proj_l
         spikes_per_population = [x[1].getSpikes() for x in self.network]
         spikes = list()
@@ -365,61 +381,35 @@ class CooperativeNetwork(object):
         if save_spikes:
             if not os.path.exists("./spikes"):
                 os.makedirs("./spikes")
-	    i = 0
-	    while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
+            i = 0
+            while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
                 i += 1
             with open('./spikes/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                 for s in spikes:
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
         return spikes
 
-    def get_all_spikes(self, sort_by_disparity=True):
+    """this method return the accumulated spikes for each disparity as a list. It is not very useful except when
+    the disparity sorting and formatting in the more general one get_spikes is not needed."""
+    def get_accumulated_disparities(self, sort_by_disparity=True, save_spikes=True):
         if sort_by_disparity:
             global same_disparity_indices
             spikes_per_disparity_map = []
             for d in range(0, self.max_disparity - self.min_disparity + 1):
                 collector_cells = [self.network[x][1] for x in same_disparity_indices[d]]
                 spikes_per_disparity_map.append(sum([sum(x.get_spike_counts().values()) for x in collector_cells]))
+                if save_spikes:
+                    if not os.path.exists("./spikes"):
+                        os.makedirs("./spikes")
+                    i = 0
+                    while os.path.exists("./spikes/{0}_disp_{1}.dat".format(self.experiment_name, i)):
+                        i += 1
+                    with open('./spikes/{0}_disp_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+                        for s in spikes_per_disparity_map:
+                            f.write(str(s) + "\n")
                 return spikes_per_disparity_map
         else:
-            all_spikes = [sum(sum(x[1].get_spikes_count().values() for x in self.network))]
+            # this is pretty useless. maybe it should be removed in the future
+            all_spikes = sum(sum(x[1].get_spikes_count().values() for x in self.network))
             return all_spikes
 
-    class Visualizer(object):
-
-        def __init__(self, network=None):
-            self.network = network
-
-        def disparity_histogram(self, over_time=False, save_figure=True, show_interactive=False):
-            if not over_time:
-                spikes_per_disparity = self.network.get_all_spikes(sort_by_disparity=True)
-                plt.bar(range(0, self.max_disparity - self.min_disparity + 1), spikes_per_disparity, align='center')
-            else:
-                disps = [x[3] for x in self.network.get_spikes(sort_by_time=True)]
-
-                x = range(0, len(disps))
-                y = disps
-
-                heatmap, xedges, yedges = np.histogram2d(y, x, bins=(self.network.max_disparity, 100))
-                # extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-
-                ax = plt.figure().add_subplot(111)
-                im = ax.imshow(heatmap, extent=[0, 10, 0, self.network.max_disparity], aspect=0.4, interpolation='none',
-                               origin='lower')
-                ax.set_xlabel("Time in s")
-                ax.set_ylabel("Disparity")
-                ax.set_aspect(0.5)
-
-                cbar = plt.colorbar(im, fraction=0.046, pad=0.03)
-                cbar.set_label('Number of events per time slot (0.1 s)', rotation=270)
-                cbar.ax.get_yaxis().labelpad = 15
-
-            if save_figure:
-                if not os.path.exists("./figures"):
-                    os.makedirs("./figures")
-                i = 0
-                while os.path.exists("./figures/{0}_{1}.png".format(self.network.experiment_name, i)):
-                    i += 1
-                plt.savefig("./figures/{0}_{1}.png".format(self.network.experiment_name, i))
-            if show_interactive:
-                plt.show()

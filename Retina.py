@@ -1,3 +1,8 @@
+###
+# Date: August 2016
+# Author: Georgi Dikov
+# email: gvdikov93@gmail.com
+###
 
 class Retina(object):
     def __init__(self, label="Retina", dimension_x=1, dimension_y=1, spike_times=None,
