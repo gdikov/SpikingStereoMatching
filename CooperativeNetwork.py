@@ -372,11 +372,11 @@ class CooperativeNetwork(object):
         if sort_by_time:
             spikes.sort(key=lambda x: x[0])
         if save_spikes:
-#            if not os.path.exists("./spikes"):
-#                os.makedirs("./spikes")
-#            i = 0
-#            while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
-#                i += 1
+            if not os.path.exists("./spikes"):
+                os.makedirs("./spikes")
+            i = 0
+            while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
+                i += 1
             with open('spikes_{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                 for s in spikes:
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
