@@ -380,6 +380,7 @@ class CooperativeNetwork(object):
             with open('./spikes/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                 for s in spikes:
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
+                f.close()
         return spikes
 
     """this method return the accumulated spikes for each disparity as a list. It is not very useful except when
@@ -400,6 +401,7 @@ class CooperativeNetwork(object):
                     with open('./spikes/{0}_disp_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                         for s in spikes_per_disparity_map:
                             f.write(str(s) + "\n")
+                        f.close()
                 return spikes_per_disparity_map
         else:
             # this is pretty useless. maybe it should be removed in the future
