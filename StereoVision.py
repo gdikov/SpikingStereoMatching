@@ -48,7 +48,7 @@ if __name__ == "__main__":
     Simulation.run()
 
     # Store the results in a file
-    disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=False)
+    disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
 
     # Finish the simulation
     Simulation.end()
