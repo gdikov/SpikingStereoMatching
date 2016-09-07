@@ -51,7 +51,7 @@ if __name__ == "__main__":
     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=False)
 
     # Finish the simulation
-    #Simulation.end()
+    Simulation.end()
 
     # Visualize the results (disparity histograms and 3D scatter animation)
     # network_dimensions = SNN_Network.get_network_dimensions()
