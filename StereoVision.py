@@ -8,7 +8,7 @@ import CooperativeNetwork as net
 import Retina as ret
 import ExternalInputReader as eir
 import Simulation as sim
-import Visualizer as vis
+#import Visualizer as vis
 
 if __name__ == "__main__":
 
