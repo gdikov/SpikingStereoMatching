@@ -5,15 +5,8 @@
 ###
 
 import pyNN.spiNNaker as ps
-import matplotlib
-matplotlib.use("Agg")	# needed for the ssh connection
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
-
-from moviepy.editor import VideoClip
-from moviepy.video.io.bindings import mplfig_to_npimage
 
 class CooperativeNetwork(object):
 
