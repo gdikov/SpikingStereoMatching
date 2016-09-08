@@ -134,7 +134,12 @@ class CooperativeNetwork(object):
         self._interconnect_neurons(network, verbose=verbose)
         if self.dim_x > 1:
             self._interconnect_neurons_inhexc(network, verbose)
-
+        else:
+            global _retina_proj_l, _retina_proj_r, same_disparity_indices
+            _retina_proj_l = [[0]]
+            _retina_proj_r = [[0]]
+            same_disparity_indices = [[0]]
+            
         return network
 
     def _interconnect_neurons(self, network, verbose=False):
