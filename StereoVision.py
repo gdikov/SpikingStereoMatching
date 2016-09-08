@@ -14,9 +14,9 @@ if __name__ == "__main__":
 
     experiment_name = "Test"
     experiment_duration = 200
-    dx = 1
-    dy = 1
-    max_d = 0
+    dx = 4
+    dy = 4
+    max_d = 3
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
