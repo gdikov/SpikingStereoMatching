@@ -13,10 +13,10 @@ import Simulation as sim
 if __name__ == "__main__":
 
     experiment_name = "Test"
-    experiment_duration = 10000
-    dx = 60
-    dy = 40
-    max_d = 20
+    experiment_duration = 200
+    dx = 4
+    dy = 4
+    max_d = 3
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     ExternalRetinaInput = \
         eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
                                 "StereoMatching/master/Data/Input_Events/"
-                                "NSTlogo_disp12-8-3.dat",
+                                "Small_input_test.dat",
                                 crop_window_x=dx,
                                 crop_window_y=dy,
                                 dim_x=dx,
