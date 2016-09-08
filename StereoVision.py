@@ -14,29 +14,29 @@ if __name__ == "__main__":
 
     experiment_name = "Test"
     experiment_duration = 200
-    dx = 4
-    dy = 4
-    max_d = 3
+    dx = 1
+    dy = 1
+    max_d = 0
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = \
-        eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
-                                "StereoMatching/master/Data/Input_Events/"
-                                "Small_input_test.dat",
-                                crop_window_x=dx,
-                                crop_window_y=dy,
-                                dim_x=dx,
-                                dim_y=dy,
-                                sim_time=experiment_duration)
+    # ExternalRetinaInput = \
+    #     eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
+    #                             "StereoMatching/master/Data/Input_Events/"
+    #                             "Small_input_test.dat",
+    #                             crop_window_x=dx,
+    #                             crop_window_y=dy,
+    #                             dim_x=dx,
+    #                             dim_y=dy,
+    #                             sim_time=experiment_duration)
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                         spike_times=ExternalRetinaInput.retinaLeft)
+                         spike_times=[[[10]]])#ExternalRetinaInput.retinaLeft)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                         spike_times=ExternalRetinaInput.retinaRight)
+                         spike_times=[[[10]]])#ExternalRetinaInput.retinaRight)
 
     # Create a cooperative network for stereo vision from retinal disparity
     SNN_Network = net.CooperativeNetwork(retinae={'left': RetinaL, 'right': RetinaR},
