@@ -23,8 +23,7 @@ if __name__ == "__main__":
 
     # Define the input source
     ExternalRetinaInput = \
-        eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
-                                "StereoMatching/master/Data/Input_Events/"
+        eir.ExternalInputReader(file_path="./"
                                 "Small_input_test.dat",
                                 crop_window_x=dx,
                                 crop_window_y=dy,
