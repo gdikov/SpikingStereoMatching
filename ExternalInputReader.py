@@ -6,10 +6,16 @@ import urllib
 # where spike_time is in microseconds, position_x and position_y are pixel coordinates in the range [1, dim_x(dim_y)]
 # polarity is the event type (0 OFF, 1 ON) and retina is the retina ID (0 left, 1 right) (or the other way round :D)
 class ExternalInputReader():
-    def __init__(self, url="", file_path="", crop_window_x=-1, crop_window_y=-1, dim_x=1, dim_y=1, sim_time=1000):
+    def __init__(self, url="", file_path="", crop_window=False, dim_x=1, dim_y=1, sim_time=1000):
         # these are the attributes which contain will contain the sorted, filtered and formatted spikes for each pixel
         self.retinaLeft = []
         self.retinaRight = []
+        
+        crop_window_x = -1
+        crop_window_y = -1
+        if crop_window:
+            crop_window_x = dim_x
+            crop_window_y = dim_y
 
         if url is not "" and file_path is not "" or \
             url is "" and file_path is "":
