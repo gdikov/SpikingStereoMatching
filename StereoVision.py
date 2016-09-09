@@ -23,12 +23,12 @@ if __name__ == "__main__":
 
     # Define the input source
     ExternalRetinaInput = \
-        eir.ExternalInputReader(file_path="./"
+        eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
+                                "StereoMatching/master/Data/Input_Events/"
                                 "Small_input_test.dat",
-                                crop_window_x=dx,
-                                crop_window_y=dy,
                                 dim_x=dx,
                                 dim_y=dy,
+                                crop_window=False,
                                 sim_time=experiment_duration)
 
     # Create two instances of Retinas with the respective inputs
