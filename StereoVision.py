@@ -36,7 +36,7 @@ if __name__ == "__main__":
                          spike_times=ExternalRetinaInput.retinaLeft)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaRight)
-    print(ExternalRetinaInput.retinaLeft, ExternalRetinaInput.retinaRight)
+    
     # Create a cooperative network for stereo vision from retinal disparity
     SNN_Network = net.CooperativeNetwork(retinae={'left': RetinaL, 'right': RetinaR},
                                          max_disparity=max_d,
@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
     # Store the results in a file
     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
+    print(disparities)
 
     # Finish the simulation
     Simulation.end()
