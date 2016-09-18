@@ -383,9 +383,9 @@ class CooperativeNetwork(object):
             while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
                 i += 1
             with open('spikes_{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+                self._write_preamble(f)
                 for s in spikes:
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
-                f.close()
         return spikes
 
     """this method return the accumulated spikes for each disparity as a list. It is not very useful except when
@@ -404,12 +404,50 @@ class CooperativeNetwork(object):
                     while os.path.exists("./spikes/{0}_disp_{1}.dat".format(self.experiment_name, i)):
                         i += 1
                     with open('./spikes/{0}_disp_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+                        self._write_preamble(f)
                         for s in spikes_per_disparity_map:
                             f.write(str(s) + "\n")
-                        f.close()
                 return spikes_per_disparity_map
         else:
             # this is pretty useless. maybe it should be removed in the future
             all_spikes = sum(sum(x[1].get_spikes_count().values() for x in self.network))
             return all_spikes
 
+    def _write_preamble(self, opened_file_descriptor):
+        if opened_file_descriptor is not None:
+            f = opened_file_descriptor
+            f.write("### PREAMBLE START ###")
+            f.write("# Experiment name: {0}".format(self.experiment_name))
+            f.write("# Network parameters "
+                    "(size in ensembles, x-dimension, y-dimension, minimum disparity, maximum disparity, "
+                    "radius of excitation, radius of inhibition): "
+                    "{0} {1} {2} {3} {4} {5} {6}".format(self.size, self.dim_x, self.dim_y,
+                                                         self.min_disparity, self.max_disparity,
+                                                         self.cell_params['topological']['radius_e'],
+                                                         self.cell_params['topological']['radius_i']))
+            f.write("# Neural parameters "
+                    "(tau_excitation, tau_inhibition, tau_membrane, v_reset_blocker, v_reset_collector): "
+                    "{0} {1} {2} {3} {4}".format(self.cell_params['neural']['tau_E'],
+                                                 self.cell_params['neural']['tau_I'],
+                                                 self.cell_params['neural']['tau_mem'],
+                                                 self.cell_params['neural']['v_reset_blocker'],
+                                                 self.cell_params['neural']['v_reset_collector']))
+            f.write('# Synaptic parameters '
+                    '(wBC, dBC, wSC, dSC, wSaB, dSaB, wSzB, dSzB, wCCi, dCCi, wCCe, dCCe): '
+                    '{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}'
+                    .format(self.cell_params['synaptic']['wBC'],
+                            self.cell_params['synaptic']['dBC'],
+                            self.cell_params['synaptic']['wSC'],
+                            self.cell_params['synaptic']['dSC'],
+                            self.cell_params['synaptic']['wSaB'],
+                            self.cell_params['synaptic']['dSaB'],
+                            self.cell_params['synaptic']['wSzB'],
+                            self.cell_params['synaptic']['dSzB'],
+                            self.cell_params['synaptic']['wCCi'],
+                            self.cell_params['synaptic']['dCCi'],
+                            self.cell_params['synaptic']['wCCe'],
+                            self.cell_params['synaptic']['dCCe']))
+            f.write('# Comments: Caution! The synaptic parameters may vary according with '
+                    'different simulation time steps. To understand the abbreviations for the '
+                    'synaptic parameters, see the code documentation.')
+            f.write("### PREAMBLE END ###")

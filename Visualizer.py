@@ -33,6 +33,7 @@ class Visualizer(object):
                     self.spikes.append((float(l[0]), int(l[1]), int(l[2]), int(l[3])))
         else:
             print("WARNING: Network output file is not set. No data to visualize.")
+        # self.spikes = np.asarray(self.spikes)
 
         self.scatter = None
         self.verbose = verbose
@@ -88,7 +89,7 @@ class Visualizer(object):
 
         scatter = _Scatter(visualizer=self,
                            dimension=dimension,
-                           relative_frame_length=0.01,
+                           relative_frame_length=0.1,
                            speedup_factor=1.0,
                            rotate=rotate,
                            export_format='mp4')
@@ -102,29 +103,39 @@ class Visualizer(object):
 class _Scatter(object):
     """relative frame length is the length of each single frame measured as a fraction of
     the whole experiment duration. """
-
     def __init__(self, visualizer=None,
                  dimension=3,
                  relative_frame_length=1.0,
-                 rotate=False, speedup_factor=10.0,
+                 rotate=False, speedup_factor=1.0, smoothness_factor=0.5,
                  export_format='gif'):
 
         self.visualizer = visualizer
         self.dimension=dimension
+
         self.relative_frame_length = relative_frame_length  # should be within (0.0, 1.0]
-        self.frame_count = int(1 / self.relative_frame_length)
+        self.frame_count = int(1 / (self.relative_frame_length*smoothness_factor))
+        self.duration = self.visualizer.spikes[-1][0]       # in ms
         self.angle = 0
         self.rotate = rotate
         self.speedup = speedup_factor
+        self.fps = int((self.frame_count/(self.duration/1000))*self.speedup)
+        if self.fps == 0:
+            self.fps = 1
+
         self.scatter_plot = None
-        self.data = self._prepare_frames()
+
+        self.window_size = self.duration * relative_frame_length            # some quantity in ms
+        self.window_step = self.window_size * smoothness_factor      # some quantity in ms
+        self.window_start = 0
+        self.window_end = self.window_start + self.window_size
 
         # initialise figure and axes and setup other details
+        self.cbar_not_added = True
         self._setup_plot()
 
         self.file_format = export_format
-
-        self.anim = VideoClip(self._update_frame, duration=self.frame_count)
+        print("duration", int((self.duration/1000+1)/speedup_factor))
+        self.anim = VideoClip(self._update_frame, duration=int((self.duration/1000+1)/speedup_factor))
 
     def _change_angle(self):
         self.angle = (self.angle + 1) % 360
@@ -149,45 +160,57 @@ class _Scatter(object):
 
         self.ax.set_title("Network's subjective sense of reality", fontsize=16)
         self.ax.set_autoscale_on(False)
-
-    def _prepare_frames(self):
-        # self.spikes[-1][0]/duration < 1 ! to prevent an index out of bound exception
-        duration = float(self.visualizer.spikes[-1][0]) + 0.1
-        print("Duration", duration)
-        framed_data = [[] for _ in range(self.frame_count)]
-
-        # the data is formatted like:
-        # [(timestamp, x, y, disparity)]
-        for d in self.visualizer.spikes:
-            framed_data[int((d[0] / duration) * self.frame_count) - 1].append((d[1], d[2], d[3]))
-        print len(framed_data), framed_data
-        framed_data = [np.asarray(x) for x in framed_data]
-        return framed_data
+        print(self.visualizer.spikes)
 
     def _update_frame(self, time):
-        i = int(time)
-        # self.ax.clear()
+
         if self.dimension == 3:
             if self.rotate:
                 self._change_angle()
                 self.ax.view_init(30, self.angle)
 
-        if self.data[i].size > 0:
-            if self.scatter_plot is not None:
-                self.scatter_plot.remove()
+        # clear the plot from the old data
+        if self.scatter_plot is not None:
+            self.scatter_plot.remove()
+
+        # reimplement in a more clever way so that movie generation is in total O(n), not O(nm)
+        current_frame = []
+        for s in self.visualizer.spikes:
+            if s[0] > self.window_end:
+                self.window_start += self.window_step
+                self.window_end = self.window_start + self.window_size
+                break
+            if s[0] > self.window_start:
+                current_frame.append((s[1], s[2], s[3]))
+        current_frame = np.asarray(current_frame)
+
+        if current_frame.size > 0:
+
             # be careful of the coordinate-axes orientation. up/down should be x!
             if self.dimension == 3:
-                self.scatter_plot = self.ax.scatter(self.data[i][:, 2],
-                                                    self.data[i][:, 0],
-                                                    self.data[i][:, 1],
+                self.scatter_plot = self.ax.scatter(current_frame[:, 2],
+                                                    current_frame[:, 0],
+                                                    current_frame[:, 1],
                                                     s=15)
             else:
-                self.scatter_plot = self.ax.scatter(self.data[i][:, 0],
-                                                    self.data[i][:, 1],
-                                                    s=15,
-                                                    c=self.data[i][:, 2],
+                self.scatter_plot = self.ax.scatter(current_frame[:, 0],
+                                                    current_frame[:, 1],
+                                                    s=25,
+                                                    marker='s',
+                                                    lw=0,
+                                                    c=current_frame[:, 2],
                                                     cmap=plt.cm.get_cmap("brg",
-                                                                         self.visualizer.network_dimensions['max_d']+1))
+                                                                         self.visualizer.network_dimensions['max_d']+1),
+                                                    vmin=self.visualizer.network_dimensions['min_d'],
+                                                    vmax=self.visualizer.network_dimensions['max_d'])
+                # find some better solution than this flag hack
+                if self.cbar_not_added:
+                    cbar = self.fig.colorbar(self.scatter_plot)
+                    cbar.set_label('Perceived disparity in pixel units', rotation=270)
+                    cbar.ax.get_yaxis().labelpad = 15
+                    self.cbar_not_added = False
+        else:
+            self.scatter_plot = self.ax.scatter([], [])
 
         return mplfig_to_npimage(self.fig)
 
@@ -205,11 +228,12 @@ class _Scatter(object):
             i += 1
         if self.file_format == 'gif':
             self.anim.write_gif(filename="./animations/{0}_{2}_{1}.gif".format(self.visualizer.experiment_name, i, dim),
-                                fps=int(15/self.speedup),
+                                fps=self.fps,
                                 verbose=self.visualizer.verbose)
         elif self.file_format == 'mp4':
+            print("fps", int((self.frame_count/(self.duration/100))*self.speedup))
             self.anim.write_videofile(filename="./animations/{0}_{2}_{1}.mp4".format(self.visualizer.experiment_name, i, dim),
-                                      fps=int(15/self.speedup),
+                                      fps=self.fps,
                                       codec='mpeg4',
                                       audio=False,
                                       verbose=self.visualizer.verbose)
