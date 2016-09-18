@@ -417,24 +417,24 @@ class CooperativeNetwork(object):
         if opened_file_descriptor is not None:
             f = opened_file_descriptor
             f.write("### PREAMBLE START ###\n")
-            f.write("# Experiment name: {0}".format(self.experiment_name))
+            f.write("# Experiment name: \n\t{0}\n".format(self.experiment_name))
             f.write("# Network parameters "
                     "(size in ensembles, x-dimension, y-dimension, minimum disparity, maximum disparity, "
                     "radius of excitation, radius of inhibition): "
-                    "{0} {1} {2} {3} {4} {5} {6}\n".format(self.size, self.dim_x, self.dim_y,
+                    "\n\t{0} {1} {2} {3} {4} {5} {6}\n".format(self.size, self.dim_x, self.dim_y,
                                                          self.min_disparity, self.max_disparity,
                                                          self.cell_params['topological']['radius_e'],
                                                          self.cell_params['topological']['radius_i']))
             f.write("# Neural parameters "
                     "(tau_excitation, tau_inhibition, tau_membrane, v_reset_blocker, v_reset_collector): "
-                    "{0} {1} {2} {3} {4}\n".format(self.cell_params['neural']['tau_E'],
+                    "\n\t{0} {1} {2} {3} {4}\n".format(self.cell_params['neural']['tau_E'],
                                                  self.cell_params['neural']['tau_I'],
                                                  self.cell_params['neural']['tau_mem'],
                                                  self.cell_params['neural']['v_reset_blocker'],
                                                  self.cell_params['neural']['v_reset_collector']))
             f.write('# Synaptic parameters '
                     '(wBC, dBC, wSC, dSC, wSaB, dSaB, wSzB, dSzB, wCCi, dCCi, wCCe, dCCe): '
-                    '{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n'
+                    '\n\t{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n'
                     .format(self.cell_params['synaptic']['wBC'],
                             self.cell_params['synaptic']['dBC'],
                             self.cell_params['synaptic']['wSC'],
@@ -447,7 +447,7 @@ class CooperativeNetwork(object):
                             self.cell_params['synaptic']['dCCi'],
                             self.cell_params['synaptic']['wCCe'],
                             self.cell_params['synaptic']['dCCe']))
-            f.write('# Comments: Caution! The synaptic parameters may vary according with '
+            f.write('# Comments: Caution: The synaptic parameters may vary according with '
                     'different simulation time steps. To understand the abbreviations for the '
                     'synaptic parameters, see the code documentation.\n')
             f.write("### PREAMBLE END ###\n")
