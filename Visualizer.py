@@ -89,7 +89,8 @@ class Visualizer(object):
 
         scatter = _Scatter(visualizer=self,
                            dimension=dimension,
-                           relative_frame_length=0.1,
+                           relative_frame_length=0.05,
+                           smoothness_factor=0.03,
                            speedup_factor=1.0,
                            rotate=rotate,
                            export_format='mp4')
@@ -105,22 +106,20 @@ class _Scatter(object):
     the whole experiment duration. """
     def __init__(self, visualizer=None,
                  dimension=3,
-                 relative_frame_length=1.0,
+                 relative_frame_length=0.01,
                  rotate=False, speedup_factor=1.0, smoothness_factor=0.5,
-                 export_format='gif'):
+                 export_format='mp4'):
 
         self.visualizer = visualizer
         self.dimension=dimension
 
         self.relative_frame_length = relative_frame_length  # should be within (0.0, 1.0]
-        self.frame_count = int(1 / (self.relative_frame_length*smoothness_factor))
+
         self.duration = self.visualizer.spikes[-1][0]       # in ms
-        self.angle = 0
+        self.angle = -90
         self.rotate = rotate
         self.speedup = speedup_factor
-        self.fps = int((self.frame_count/(self.duration/1000))*self.speedup)
-        if self.fps == 0:
-            self.fps = 1
+
 
         self.scatter_plot = None
 
@@ -129,26 +128,32 @@ class _Scatter(object):
         self.window_start = 0
         self.window_end = self.window_start + self.window_size
 
+        self.frame_count = int((self.duration - self.window_size) / self.window_step) + 1
+        self.fps = int((self.frame_count / (self.duration / 1000)) * self.speedup)
+
+        if self.fps == 0:
+            self.fps = 1
+
         # initialise figure and axes and setup other details
         self.cbar_not_added = True
         self._setup_plot()
 
         self.file_format = export_format
-        print("duration", int((self.duration/1000+1)/speedup_factor))
+        # print("duration", int((self.duration/1000+1)/speedup_factor))
         self.anim = VideoClip(self._update_frame, duration=int((self.duration/1000+1)/speedup_factor))
 
     def _change_angle(self):
-        self.angle = (self.angle + 1) % 360
+        self.angle = (self.angle + 0.5) % 360
 
     def _setup_plot(self):
         self.fig = plt.figure()
         if self.dimension == 3:
             self.ax = self.fig.add_subplot(111, projection='3d')
             self.ax.set_xlim3d(0, self.visualizer.network_dimensions['dim_x'])
-            self.ax.set_xlabel('depth')
-            self.ax.set_ylim3d(0, self.visualizer.network_dimensions['dim_y'])
-            self.ax.set_ylabel('x')
-            self.ax.set_zlim3d(self.visualizer.network_dimensions['min_d'], self.visualizer.network_dimensions['max_d'])
+            self.ax.set_xlabel('x')
+            self.ax.set_ylim3d(self.visualizer.network_dimensions['max_d'], self.visualizer.network_dimensions['min_d'])
+            self.ax.set_ylabel('depth')
+            self.ax.set_zlim3d(0, self.visualizer.network_dimensions['dim_y'])
             self.ax.set_zlabel('y')
 
         else:
@@ -160,20 +165,19 @@ class _Scatter(object):
 
         self.ax.set_title("Network's subjective sense of reality", fontsize=16)
         self.ax.set_autoscale_on(False)
-        print(self.visualizer.spikes)
 
     def _update_frame(self, time):
 
         if self.dimension == 3:
             if self.rotate:
                 self._change_angle()
-                self.ax.view_init(30, self.angle)
+            self.ax.view_init(30, self.angle)
 
         # clear the plot from the old data
         if self.scatter_plot is not None:
             self.scatter_plot.remove()
 
-        # reimplement in a more clever way so that movie generation is in total O(n), not O(nm)
+        # reimplement in a more clever way so that movie generation is in total O(n) not O(nm)
         current_frame = []
         for s in self.visualizer.spikes:
             if s[0] > self.window_end:
@@ -188,10 +192,24 @@ class _Scatter(object):
 
             # be careful of the coordinate-axes orientation. up/down should be x!
             if self.dimension == 3:
-                self.scatter_plot = self.ax.scatter(current_frame[:, 2],
-                                                    current_frame[:, 0],
+                self.scatter_plot = self.ax.scatter(current_frame[:, 0],
+                                                    current_frame[:, 2],
                                                     current_frame[:, 1],
-                                                    s=15)
+                                                    s=25,
+                                                    marker='s',
+                                                    lw=0,
+                                                    c=current_frame[:, 2],
+                                                    cmap=plt.cm.get_cmap("brg",
+                                                                         self.visualizer.network_dimensions[
+                                                                             'max_d'] + 1),
+                                                    vmin=self.visualizer.network_dimensions['min_d'],
+                                                    vmax=self.visualizer.network_dimensions['max_d']
+                                                    )
+                if self.cbar_not_added:
+                    cbar = self.fig.colorbar(self.scatter_plot)
+                    cbar.set_label('Perceived disparity in pixel units', rotation=270)
+                    cbar.ax.get_yaxis().labelpad = 15
+                    self.cbar_not_added = False
             else:
                 self.scatter_plot = self.ax.scatter(current_frame[:, 0],
                                                     current_frame[:, 1],
@@ -223,16 +241,21 @@ class _Scatter(object):
         if not os.path.exists("./animations"):
             os.makedirs("./animations")
         i = 0
-        while os.path.exists("./animations/{0}_{2}_{1}.gif".format(self.visualizer.experiment_name, i, dim)) or \
-                os.path.exists("./animations/{0}_{2}_{1}.mp4".format(self.visualizer.experiment_name, i, dim)):
+        while os.path.exists("./animations/{0}_{2}_{1}.gif"
+                                     .format(self.visualizer.experiment_name, i, dim)) or \
+                os.path.exists("./animations/{0}_{2}_{1}.mp4"
+                                       .format(self.visualizer.experiment_name, i, dim)):
             i += 1
         if self.file_format == 'gif':
-            self.anim.write_gif(filename="./animations/{0}_{2}_{1}.gif".format(self.visualizer.experiment_name, i, dim),
+            self.anim.write_gif(filename="./animations/{0}_{2}_{1}.gif"
+                                .format(self.visualizer.experiment_name, i, dim),
                                 fps=self.fps,
                                 verbose=self.visualizer.verbose)
         elif self.file_format == 'mp4':
-            print("fps", int((self.frame_count/(self.duration/100))*self.speedup))
-            self.anim.write_videofile(filename="./animations/{0}_{2}_{1}.mp4".format(self.visualizer.experiment_name, i, dim),
+            print("INFO: Generating movie with duration of {0}s at {1}fps."
+                  .format(int((self.duration/1000+1)/self.speedup), self.fps))
+            self.anim.write_videofile(filename="./animations/{0}_{2}_{1}.mp4"
+                                      .format(self.visualizer.experiment_name, i, dim),
                                       fps=self.fps,
                                       codec='mpeg4',
                                       audio=False,
