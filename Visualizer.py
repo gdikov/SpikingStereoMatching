@@ -258,6 +258,7 @@ class _Scatter(object):
                                       .format(self.visualizer.experiment_name, i, dim),
                                       fps=self.fps,
                                       codec='mpeg4',
+                                      bitrate='4000k',
                                       audio=False,
                                       verbose=self.visualizer.verbose)
         else:
