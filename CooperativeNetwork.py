@@ -382,7 +382,7 @@ class CooperativeNetwork(object):
             i = 0
             while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
                 i += 1
-            with open('spikes_{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+            with open('./spikes/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                 self._write_preamble(f)
                 for s in spikes:
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
