@@ -30,7 +30,7 @@ if __name__ == "__main__":
                                 dim_y=dy,
                                 crop_window=False,
                                 sim_time=experiment_duration)
-
+    print(ExternalRetinaInput.retinaLeft)
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaLeft)
