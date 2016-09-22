@@ -1,23 +1,25 @@
 import pyNN.spiNNaker as ps
 
+n = 4
+
 ps.setup(timestep=0.2, min_delay=0.2, max_delay=10 * 0.2, threads=4)
 
-pixel_r = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_r", structure=ps.Line())
-pixel_l = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_l", structure=ps.Line())
+pixel_r = ps.Population(n, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_r", structure=ps.Line())
+pixel_l = ps.Population(n, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_l", structure=ps.Line())
 
-collector = ps.Population(1, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -90.0}, label="collector")
-blockers = ps.Population(1 * 2, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -84.0}, label="blockers")
+collector = ps.Population(n, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -90.0}, label="collector")
+blockers = ps.Population(n * 2, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -84.0}, label="blockers")
 
 collector.record()
 blockers.record()
 
-connList = [(0, 0, -20.5, 0.2), (1, 0, -20.5, 0.2)]
+connList = [(0, 0, -20.5, 0.2), (1, 1, -20.5, 0.2), (2, 2, -20.5, 0.2), (3, 3, -20.5, 0.2), (4, 0, -20.5, 0.2), (5, 1, -20.5, 0.2), (6, 2, -20.5, 0.2), (7, 3, -20.5, 0.2)]
 ps.Projection(blockers, collector, ps.FromListConnector(connList), target='inhibitory')
 
-connListRetLBlockerL = [(0, 0, 22.5, 0.2)]
-connListRetLBlockerR = [(0, 1, -22.5, 0.2)]
-connListRetRBlockerL = [(0, 0, 22.5, 0.2)]
-connListRetRBlockerR = [(0, 1, -22.5, 0.2)]
+connListRetLBlockerL = [(0, 0, 22.5, 0.2), (1, 1, 22.5, 0.2), (2, 2, 22.5, 0.2), (3, 3, 22.5, 0.2)]
+connListRetLBlockerR = [(0, 4, -22.5, 0.2), (1, 5, -22.5, 0.2), (2, 6, -22.5, 0.2), (3, 7, -22.5, 0.2)]
+connListRetRBlockerL = [(0, 0, 22.5, 0.2), (1, 1, 22.5, 0.2), (2, 2, 22.5, 0.2), (3, 3, 22.5, 0.2)]
+connListRetRBlockerR = [(0, 4, -22.5, 0.2), (1, 5, -22.5, 0.2), (2, 6, -22.5, 0.2), (3, 7, -22.5, 0.2)]
 
 ps.Projection(pixel_r, collector, ps.OneToOneConnector(weights=20.5, delays=1.6), target='excitatory')
 ps.Projection(pixel_r, blockers, ps.FromListConnector(connListRetRBlockerR), target='excitatory')
