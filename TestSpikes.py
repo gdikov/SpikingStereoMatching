@@ -7,13 +7,12 @@ ps.setup(timestep=0.2, min_delay=0.2, max_delay=10 * 0.2, threads=4)
 pixel_r = ps.Population(n, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_r", structure=ps.Line())
 pixel_l = ps.Population(n, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_l", structure=ps.Line())
 
-print(pixel_r.positions())
-print(pixel_l.positions())
+print(pixel_r.positions, pixel_r.size)
 
 collector = ps.Population(n, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -90.0}, label="collector")
 blockers = ps.Population(n * 2, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -84.0}, label="blockers")
-print(collector.positions())
-print(blockers.positions())
+print(collector.positions)
+print(blockers.positions)
 
 collector.record()
 blockers.record()
