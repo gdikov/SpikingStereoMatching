@@ -4,7 +4,7 @@
 # email: gvdikov93@gmail.com
 ###
 
-import pyNN.spiNNaker as ps
+import spynnaker.pyNN as ps #pyNN.spiNNaker as ps
 import numpy as np
 import os
 
