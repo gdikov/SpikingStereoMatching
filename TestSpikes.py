@@ -1,4 +1,4 @@
-import spyNNaker.pyNN as ps
+import spynnaker.pyNN as ps
 
 n = 4
 
@@ -6,9 +6,9 @@ ps.setup(timestep=0.2, min_delay=0.2, max_delay=10 * 0.2, threads=4)
 
 pixel_r = ps.Population(n, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_r", structure=ps.Line())
 pixel_l = ps.Population(n, ps.SpikeSourceArray, {'spike_times': [[10, 30], [1000], [1000]]}, label="test_input_l", structure=ps.Line())
-print(pixel_r)
+
 print(pixel_r[0], pixel_r[1], pixel_r[2], pixel_r[3])
-print(pixel_l)
+print(pixel_l[0], pixel_l[1], pixel_l[2], pixel_l[3])
 
 collector = ps.Population(n, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -90.0}, label="collector")
 blockers = ps.Population(n * 2, ps.IF_curr_exp, {'tau_syn_E': 2.0, 'tau_syn_I': 2.0, 'tau_m': 2.07, 'v_reset': -84.0}, label="blockers")
