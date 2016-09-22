@@ -1,4 +1,4 @@
-import pyNN.spiNNaker as ps
+import spyNNaker.pyNN as ps
 
 n = 4
 
