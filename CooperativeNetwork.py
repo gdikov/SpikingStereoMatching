@@ -353,29 +353,28 @@ class CooperativeNetwork(object):
 
             # this callback will be executed right after simulation.run() has been called. If simply a while True
             # is put there, the main thread will stuck there and will not complete the simulation.
-            # One solution might be to start a thread/process which runs a while is_running: loop while the main thread
-            # sets the is_running to False.
+            # One solution might be to start a thread/process which runs a "while is_running:" loop unless the main thread
+            # sets the "is_running" to False.
             self.live_connection_sender.add_start_callback(all_retina_labels[0], self.start_injecting)
 
-    def start_injecting(self):
-        # this has to be filled in with something like, connetion.write(...)
-        self.live_connection_sender.send_spike(label="FILL WITH THE CORRECT POPULATION LABEL",
-                                               neuron_id=NEURON_ID_WITHIN_POPULATION,
-                                               send_full_keys=False) # check with send_full_keys=True if it's any better
-        
-        # this will not work, but I copied it here just to show how we used to send spikes (see the LiveIO versions
-        # in the old versions in the other repo.
-        
-#         if lowerBoundX <= x < upperBoundX and lowerBoundY <= y < upperBoundY and self.startInjecting:
-#             if x != lastx or y != lasty:
-#                 injectorLabel = (x - lowerBoundX) / pixelColsPerInjectorPop
-#                 injectorNeuronID = (y - lowerBoundY) + ((x - lowerBoundX) % pixelColsPerInjectorPop) * dimensionRetinaY
-#                 #                             print "sendin atr", x, injectorLabel, y, injectorNeuronID
-#                 self.liveConnection.send_spike(label="{0} {1}".format(self.label, injectorLabel),
-#                                                neuron_id=injectorNeuronID, send_full_keys=True)
-#                 lastx = x
-#                 lasty = y
+            import DVSReader as dvs
+            # the port numbers might well be wrong
+            self.dvs_stream_left = dvs.DVSReader(port=0,
+                                                 label=retinaLeft.label,
+                                                 live_connection=self.live_connection_sender)
+            self.dvs_stream_right = dvs.DVSReader(port=1,
+                                                  label=retinaRight.label,
+                                                  live_connection=self.live_connection_sender)
 
+            # start the threads, i.e. start reading from the DVS. However, nothing will be sent to the SNN.
+            # See start_injecting
+            self.dvs_stream_left.start()
+            self.dvs_stream_right.start()
+
+    def start_injecting(self):
+        # start injecting into the SNN
+        self.dvs_stream_left.start_injecting = True
+        self.dvs_stream_right.start_injecting = True
 
     def get_network_dimensions(self):
         parameters = {'size':self.size,
