@@ -362,16 +362,19 @@ class CooperativeNetwork(object):
         self.live_connection_sender.send_spike(label="FILL WITH THE CORRECT POPULATION LABEL",
                                                neuron_id=NEURON_ID_WITHIN_POPULATION,
                                                send_full_keys=False) # check with send_full_keys=True if it's any better
-
-        if lowerBoundX <= x < upperBoundX and lowerBoundY <= y < upperBoundY and self.startInjecting:
-            if x != lastx or y != lasty:
-                injectorLabel = (x - lowerBoundX) / pixelColsPerInjectorPop
-                injectorNeuronID = (y - lowerBoundY) + ((x - lowerBoundX) % pixelColsPerInjectorPop) * dimensionRetinaY
-                #                             print "sendin atr", x, injectorLabel, y, injectorNeuronID
-                self.liveConnection.send_spike(label="{0} {1}".format(self.label, injectorLabel),
-                                               neuron_id=injectorNeuronID, send_full_keys=True)
-                lastx = x
-                lasty = y
+        
+        # this will not work, but I copied it here just to show how we used to send spikes (see the LiveIO versions
+        # in the old versions in the other repo.
+        
+#         if lowerBoundX <= x < upperBoundX and lowerBoundY <= y < upperBoundY and self.startInjecting:
+#             if x != lastx or y != lasty:
+#                 injectorLabel = (x - lowerBoundX) / pixelColsPerInjectorPop
+#                 injectorNeuronID = (y - lowerBoundY) + ((x - lowerBoundX) % pixelColsPerInjectorPop) * dimensionRetinaY
+#                 #                             print "sendin atr", x, injectorLabel, y, injectorNeuronID
+#                 self.liveConnection.send_spike(label="{0} {1}".format(self.label, injectorLabel),
+#                                                neuron_id=injectorNeuronID, send_full_keys=True)
+#                 lastx = x
+#                 lasty = y
 
 
     def get_network_dimensions(self):
