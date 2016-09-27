@@ -4,7 +4,7 @@
 # email: gvdikov93@gmail.com
 ###
 
-import spynnaker.pyNN as ps #pyNN.spiNNaker as ps
+import spynnaker.pyNN as ps
 import numpy as np
 import os
 
@@ -341,6 +341,38 @@ class CooperativeNetwork(object):
                               ps.FromListConnector(connListRetRBlockerL),
                               target='inhibitory')
             pixel += 1
+
+        # configure for the live input streaming if desired
+        if retinaLeft.use_prerecorded_input and retinaRight.use_prerecorded_input:
+            from spynnaker_external_devices_plugin.pyNN.connections.spynnaker_live_spikes_connection import \
+                SpynnakerLiveSpikesConnection
+
+            all_retina_labels = retinaLeft.labels + retinaRight.labels
+            self.live_connection_sender = SpynnakerLiveSpikesConnection(receive_labels=None, local_port=19999,
+                                                                        send_labels=all_retina_labels)
+
+            # this callback will be executed right after simulation.run() has been called. If simply a while True
+            # is put there, the main thread will stuck there and will not complete the simulation.
+            # One solution might be to start a thread/process which runs a while is_running: loop while the main thread
+            # sets the is_running to False.
+            self.live_connection_sender.add_start_callback(all_retina_labels[0], self.start_injecting)
+
+    def start_injecting(self):
+        # this has to be filled in with something like, connetion.write(...)
+        self.live_connection_sender.send_spike(label="FILL WITH THE CORRECT POPULATION LABEL",
+                                               neuron_id=NEURON_ID_WITHIN_POPULATION,
+                                               send_full_keys=False) # check with send_full_keys=True if it's any better
+
+        if lowerBoundX <= x < upperBoundX and lowerBoundY <= y < upperBoundY and self.startInjecting:
+            if x != lastx or y != lasty:
+                injectorLabel = (x - lowerBoundX) / pixelColsPerInjectorPop
+                injectorNeuronID = (y - lowerBoundY) + ((x - lowerBoundX) % pixelColsPerInjectorPop) * dimensionRetinaY
+                #                             print "sendin atr", x, injectorLabel, y, injectorNeuronID
+                self.liveConnection.send_spike(label="{0} {1}".format(self.label, injectorLabel),
+                                               neuron_id=injectorNeuronID, send_full_keys=True)
+                lastx = x
+                lasty = y
+
 
     def get_network_dimensions(self):
         parameters = {'size':self.size,
