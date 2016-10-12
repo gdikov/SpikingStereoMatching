@@ -33,9 +33,9 @@ if __name__ == "__main__":
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                         spike_times=[10])
+                         spike_times=[[10]])
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                         spike_times=[11])
+                         spike_times=[[11]])
 
     # Create a cooperative network for stereo vision from retinal disparity
     SNN_Network = net.CooperativeNetwork(retinae={'left': RetinaL, 'right': RetinaR},
