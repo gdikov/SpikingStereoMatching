@@ -29,7 +29,7 @@ class Retina(object):
         self.pixel_columns = []
         self.labels = []
 
-        if use_prerecorded_input:
+        if use_prerecorded_input or spike_times is not None:
             for x in range(0, dimension_x - min_disparity):
                 retina_label = "{0}_{1}".format(label, x)
                 col_of_pixels = ps.Population(dimension_y, ps.SpikeSourceArray, {'spike_times': spike_times[x]},
