@@ -452,7 +452,8 @@ class CooperativeNetwork(object):
 
     """ this method returns a list containing the membrane potential of all neural populations sorted by id."""
     def get_v(self, save_v=True):
-        voltages = [x.get_v() for x in self.network]
+        voltages = {"collector_v": [x[1].get_v() for x in self.network],
+                    "blockers_v":[x[0].get_v() for x in self.network]}
         if save_v:
             if not os.path.exists("./membrane_potentials"):
                 os.makedirs("./membrane_potentials")
