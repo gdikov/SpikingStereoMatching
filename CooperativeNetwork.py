@@ -346,7 +346,7 @@ class CooperativeNetwork(object):
             pixel += 1
 
         # configure for the live input streaming if desired
-        if not(retinaLeft.use_prerecorded_input and retinaRight.use_prerecorded_input):
+        if not(retinaLeft[0].use_prerecorded_input and retinaRight[0].use_prerecorded_input):
             from spynnaker_external_devices_plugin.pyNN.connections.spynnaker_live_spikes_connection import \
                 SpynnakerLiveSpikesConnection
 
