@@ -50,6 +50,7 @@ if __name__ == "__main__":
     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
     membrane_potential = SNN_Network.get_v(save_v=True)
     print(disparities)
+    print(membrane_potential)
 
     # Finish the simulation
     Simulation.end()

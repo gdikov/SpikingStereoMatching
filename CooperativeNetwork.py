@@ -12,7 +12,7 @@ class CooperativeNetwork(object):
 
     def __init__(self, retinae=None,
                  max_disparity=0, cell_params=None,
-                 record_spikes=True, experiment_name="Experiment",
+                 record_spikes=True, record_v=False, experiment_name="Experiment",
                  verbose=False):
         # IMPORTANT NOTE: This implementation assumes min_disparity = 0
 
@@ -92,13 +92,14 @@ class CooperativeNetwork(object):
         self.cell_params = params if cell_params is None else cell_params
 
         self.network = self._create_network(record_spikes=record_spikes,
+                                            record_v=record_v,
                                             verbose=verbose)
 
         self._connect_spike_sources(retinae=retinae, verbose=verbose)
 
         self.experiment_name = experiment_name
 
-    def _create_network(self, record_spikes=False, verbose=False):
+    def _create_network(self, record_spikes=False, record_v=False, verbose=False):
 
         if verbose:
             print("INFO: Creating Cooperative Network of size {0}".format(self.size))
@@ -127,7 +128,9 @@ class CooperativeNetwork(object):
 
             if record_spikes:
                 collector_column.record()  # records only the spikes
-                # collector_column.record_v()  # records the membrane potential -- very resource demanding!
+            if record_v:
+                collector_column.record_v()  # records the membrane potential -- very resource demanding!
+                blocker_columns.record_v()
 
             network.append((blocker_columns, collector_column))
 
@@ -422,7 +425,7 @@ class CooperativeNetwork(object):
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
         return spikes
 
-    """this method return the accumulated spikes for each disparity as a list. It is not very useful except when
+    """ this method returns the accumulated spikes for each disparity as a list. It is not very useful except when
     the disparity sorting and formatting in the more general one get_spikes is not needed."""
     def get_accumulated_disparities(self, sort_by_disparity=True, save_spikes=True):
         if sort_by_disparity:
@@ -446,6 +449,21 @@ class CooperativeNetwork(object):
             # this is pretty useless. maybe it should be removed in the future
             all_spikes = sum(sum(x[1].get_spikes_count().values() for x in self.network))
             return all_spikes
+
+    """ this method returns a list containing the membrane potential of all neural populations sorted by id."""
+    def get_v(self, save_v=True):
+        voltages = [x.get_v() for x in self.network]
+        if save_v:
+            if not os.path.exists("./membrane_potentials"):
+                os.makedirs("./membrane_potentials")
+            i = 0
+            while os.path.exists("./membrane_potentials/{0}_{1}.dat".format(self.experiment_name, i)):
+                i += 1
+            with open('./membrane_potentials/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+                self._write_preamble(f)
+                for s in voltages:
+                    f.write(str(s) + "\n")
+        return voltages
 
     def _write_preamble(self, opened_file_descriptor):
         if opened_file_descriptor is not None:
