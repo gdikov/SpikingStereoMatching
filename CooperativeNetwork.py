@@ -463,14 +463,12 @@ class CooperativeNetwork(object):
         voltages = {"collector_v": [x[1].get_v() for x in self.network],
                     "blockers_v":[x[0].get_v() for x in self.network]}
         if save_v:
-            print("saving")
             if not os.path.exists("./membrane_potentials"):
                 os.makedirs("./membrane_potentials")
             i = 0
             while os.path.exists("./membrane_potentials/{0}_{1}.dat".format(self.experiment_name, i)):
                 i += 1
             with open('./membrane_potentials/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
-                print("writing")
                 self._write_preamble(f)
                 f.write("### DATA FORMAT ###\n"
                         "# Description: First all Blocker Populations are being printed. "
@@ -487,7 +485,6 @@ class CooperativeNetwork(object):
                     for v in pop_v:
                         f.write("c " + str(pop_id) + " " + str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
                 f.write("### DATA END ###")
-                print("finished")
         return voltages
 
     def _write_preamble(self, opened_file_descriptor):
