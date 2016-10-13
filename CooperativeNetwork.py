@@ -421,8 +421,16 @@ class CooperativeNetwork(object):
                 i += 1
             with open('./spikes/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                 self._write_preamble(f)
+                f.write("### DATA FORMAT ###\n"
+                        "# Description: All spikes from the Collector Neurons are recorded. The disparity is inferred "
+                        "from the Neuron ID. The disparity is calculated with the left camera as reference."
+                        "The timestamp is dependent on the simulation parameters (simulation timestep).\n"
+                        "# Each row contains: "
+                        "Time -- x-coordinate -- y-coordinate -- disparity\n"
+                        "### DATA START ###\n")
                 for s in spikes:
                     f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
+                f.write("### DATA END ###")
         return spikes
 
     """ this method returns the accumulated spikes for each disparity as a list. It is not very useful except when
@@ -462,8 +470,21 @@ class CooperativeNetwork(object):
                 i += 1
             with open('./membrane_potentials/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
                 self._write_preamble(f)
-                for s in voltages:
-                    f.write(str(s) + "\n")
+                f.write("### DATA FORMAT ###\n"
+                        "# Description: First all Blocker Populations are being printed. "
+                        "Then all Collector populations. Both are sorted by Population ID (i.e. order of creation). "
+                        "Each Blocker/Collector Population lists all neurons, sorted by Neuron ID. "
+                        "There are two times more Blocker than Collector Neurons.\n"
+                        "# Each row contains: "
+                        "Blocker/Collector tag (b/c) -- Population ID -- Neuron ID -- Time -- Membrane Potential\n"
+                        "### DATA START ###\n")
+                for pop_id, pop_v in enumerate(voltages["blockers_v"]):
+                    for v in pop_v:
+                        f.write("b " + str(pop_id) + " " + str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+                for pop_id, pop_v in enumerate(voltages["collector_v"]):
+                    for v in pop_v:
+                        f.write("c " + str(pop_id) + " " + str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+                f.write("### DATA END ###")
         return voltages
 
     def _write_preamble(self, opened_file_descriptor):
