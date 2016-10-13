@@ -20,25 +20,91 @@ class Visualizer(object):
     def __init__(self, experiment_name="Experiment",
                  network_dimensions=None,
                  spikes_file="",
+                 membrane_potential_file="",
                  verbose=False):
-        self.experiment_name = experiment_name
+        self.experiment_name = experiment_name.replace(" ", "_")
         self.network_dimensions = network_dimensions
 
-        self.network_output_file = spikes_file
+        self.network_spikes_file = spikes_file
+        self.network_voltage_file = membrane_potential_file
         self.spikes = []
+
         if spikes_file:
-            with open(self.network_output_file, 'rb') as events:
+            with open(self.network_spikes_file, 'rb') as events:
+                is_data = False
                 for line in events:
-                    l = line.split()
-                    self.spikes.append((float(l[0]), int(l[1]), int(l[2]), int(l[3])))
+                    # skip preambles and other logged information
+                    if not "DATA START" and not "DATA END" in line:
+                        if not is_data:
+                            continue
+                        else:
+                            l = line.split()
+                            self.spikes.append((float(l[0]), int(l[1]), int(l[2]), int(l[3])))
+                    else:
+                        is_data = True
         else:
-            print("WARNING: Network output file is not set. No data to visualize.")
+            print("WARNING: Network spikes output file is not set. No spike data to visualize.")
         # self.spikes = np.asarray(self.spikes)
+
+        self.membrane_potential = {"bl": [], "br": [], "c": []}
+
+        # NOTE: it is assumed that if the membrane potential is to be ploted, then only one microensemble is recorded
+        if membrane_potential_file:
+            with open(self.network_voltage_file, 'rb') as voltages:
+                is_data = False
+                for line in voltages:
+                    # skip preambles and other logged information
+                    if not "DATA START" in line and not "DATA END" in line:
+                        if not is_data:
+                            continue
+                        else:
+                            l = line.split(" ")
+                            if l[0] == 'b':
+                                if l[2] == 0:
+                                    self.membrane_potential["bl"].append((float(l[3]), float(l[4])))
+                                else:
+                                    self.membrane_potential["br"].append((float(l[3]), float(l[4])))
+                            else:
+                                self.membrane_potential["c"].append((float(l[3]), float(l[4])))
+                    else:
+                        is_data = True
+        self.membrane_potential["br"] = np.asarray(self.membrane_potential["br"])
+        self.membrane_potential["bl"] = np.asarray(self.membrane_potential["bl"])
+        self.membrane_potential["c"] = np.asarray(self.membrane_potential["c"])
 
         self.scatter = None
         self.verbose = verbose
 
+    def microensemble_voltage_plot(self, save_figure=True, show_interactive=False):
 
+        fig = plt.figure()
+        ax1 = fig.add_subplot(311)
+        ax2 = fig.add_subplot(312)
+        ax3 = fig.add_subplot(313)
+
+        ax1.plot(self.membrane_potential["bl"][: , 0], self.membrane_potential["bl"][:, 1])
+        ax2.plot(self.membrane_potential["br"][:, 0], self.membrane_potential["br"][:, 1])
+        ax3.plot(self.membrane_potential["c"][:, 0], self.membrane_potential["c"][:, 1])
+
+        plt.subplots_adjust(hspace=1)
+
+        ax1.set_title('Blocker left')
+        ax2.set_title('Blocker right')
+        ax3.set_title('Collector')
+
+        # set common labels
+        fig.text(0.5, 0.04, 'time in ms', ha='center', va='center')
+        fig.text(0.06, 0.5, 'voltage in mV', ha='center', va='center', rotation='vertical')
+
+        if save_figure:
+            if not os.path.exists("./figures"):
+                os.makedirs("./figures")
+            i = 0
+            while os.path.exists("./figures/{0}_voltage_{1}.png".format(self.experiment_name, i)):
+                i += 1
+            plt.savefig("./figures/{0}_voltage_{1}.png".format(self.experiment_name, i))
+        if show_interactive:
+            plt.show()
 
     def disparity_histogram(self, over_time=False, save_figure=True, show_interactive=False):
         if self.verbose:

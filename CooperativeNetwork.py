@@ -97,7 +97,7 @@ class CooperativeNetwork(object):
 
         self._connect_spike_sources(retinae=retinae, verbose=verbose)
 
-        self.experiment_name = experiment_name
+        self.experiment_name = experiment_name.replace(" ", "_")
 
     def _create_network(self, record_spikes=False, record_v=False, verbose=False):
 
@@ -480,10 +480,10 @@ class CooperativeNetwork(object):
                         "### DATA START ###\n")
                 for pop_id, pop_v in enumerate(voltages["blockers_v"]):
                     for v in pop_v:
-                        f.write("b " + str(pop_id) + " " + str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+                        f.write("b " + str(int(pop_id)) + " " + str(int(v[0])) + " " + str(v[1]) + " " + str(v[2]) + "\n")
                 for pop_id, pop_v in enumerate(voltages["collector_v"]):
                     for v in pop_v:
-                        f.write("c " + str(pop_id) + " " + str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+                        f.write("c " + str(int(pop_id)) + " " + str(int(v[0])) + " " + str(v[1]) + " " + str(v[2]) + "\n")
                 f.write("### DATA END ###")
         return voltages
 
