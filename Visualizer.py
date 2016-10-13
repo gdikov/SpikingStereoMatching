@@ -58,9 +58,9 @@ class Visualizer(object):
                         if not is_data:
                             continue
                         else:
-                            l = line.split(" ")
+                            l = line.split()
                             if l[0] == 'b':
-                                if l[2] == 0:
+                                if l[2] == '0':
                                     self.membrane_potential["bl"].append((float(l[3]), float(l[4])))
                                 else:
                                     self.membrane_potential["br"].append((float(l[3]), float(l[4])))
