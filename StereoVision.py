@@ -48,9 +48,9 @@ if __name__ == "__main__":
     Simulation.run()
 
     # Store the results in a file
-    disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
+#     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=False)
     membrane_potential = SNN_Network.get_v(save_v=True)
-    print(disparities)
+#     print(disparities)
     print(membrane_potential)
 
     # Finish the simulation
