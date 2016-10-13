@@ -12,8 +12,8 @@ import Simulation as sim
 
 if __name__ == "__main__":
 
-    experiment_name = "Test"
-    experiment_duration = 10
+    experiment_name = "Test Microensemble - two unsynced spikes"
+    experiment_duration = 20
     dx = 1
     dy = 1
     max_d = 0
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
                          spike_times=[[1]])
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                         spike_times=[[2]])
+                         spike_times=[[10]])
 
     # Create a cooperative network for stereo vision from retinal disparity
     SNN_Network = net.CooperativeNetwork(retinae={'left': RetinaL, 'right': RetinaR},
