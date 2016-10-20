@@ -8,12 +8,12 @@ import CooperativeNetwork as net
 import Retina as ret
 # import ExternalInputReader as eir
 import Simulation as sim
-# import Visualizer as vis
+import Visualizer as vis
 
 if __name__ == "__main__":
 
-    experiment_name = "Test Microensemble - two unsynced spikes"
-    experiment_duration = 10
+    experiment_name = "Test"
+    experiment_duration = 50
     dx = 1
     dy = 1
     max_d = 0
@@ -33,9 +33,9 @@ if __name__ == "__main__":
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                         spike_times=[[1]])
+                         spike_times=[[1, 25, 26, 27, 40]])
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                         spike_times=[[2]])
+                         spike_times=[[9, 41]])
 
     # Create a cooperative network for stereo vision from retinal disparity
     SNN_Network = net.CooperativeNetwork(retinae={'left': RetinaL, 'right': RetinaR},
@@ -58,10 +58,11 @@ if __name__ == "__main__":
 
     # Visualize the results (disparity histograms and 3D scatter animation)
     # network_dimensions = SNN_Network.get_network_dimensions()
-    # network_dimensions = {'dim_x':dx, 'dim_y':dy, 'min_d':0, 'max_d':max_d}
-    # Results = vis.Visualizer(network_dimensions=network_dimensions,
-    #                          experiment_name=experiment_name,
-    #                          spikes_file="./NST.dat")
+    network_dimensions = {'dim_x':dx, 'dim_y':dy, 'min_d':0, 'max_d':max_d}
+    Results = vis.Visualizer(network_dimensions=network_dimensions,
+                             experiment_name=experiment_name,
+                             membrane_potential_file="./membrane_potentials/Test_0.dat")
+    Results.microensemble_voltage_plot(save_figure=True)
     # Results.disparity_histogram(over_time=True, save_figure=True)
     # Results.scatter_animation(dimension=3, save_animation=True, rotate=True)
 
