@@ -49,7 +49,7 @@ print(voltage)
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
-ax1.plot(voltage[: , 0], voltage[:, 1])
+ax1.plot(voltage[: , 1], voltage[:, 2])
 plt.savefig("./figures/Test_voltage.png")
 
 ps.end()
