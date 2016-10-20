@@ -56,14 +56,16 @@ voltage_b = blocker.get_v()
 print(voltage_c)
 print(voltage_b)
 
+
+
 fig = plt.figure()
 ax1 = fig.add_subplot(311)
 ax2 = fig.add_subplot(312)
 ax3 = fig.add_subplot(313)
 
 ax1.plot(voltage_c[: , 1], voltage_c[:, 2])
-ax2.plot(voltage_b[0, : , 1], voltage_b[0, :, 2])
-ax3.plot(voltage_b[1, : , 1], voltage_b[1, :, 2])
+ax2.plot(voltage_b[voltage_b[:, 0] < 0.5, 1], voltage_b[voltage_b[:, 0] < 0.5, 2])
+ax3.plot(voltage_b[voltage_b[:, 0] > 0.5 , 1], voltage_b[voltage_b[:, 0] > 0.5, 2])
 
 ax1.set_title('Collector')
 ax2.set_title('Blocker left')
