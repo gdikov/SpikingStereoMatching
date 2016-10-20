@@ -8,7 +8,7 @@ import CooperativeNetwork as net
 import Retina as ret
 # import ExternalInputReader as eir
 import Simulation as sim
-import Visualizer as vis
+# import Visualizer as vis
 
 if __name__ == "__main__":
 
@@ -58,10 +58,10 @@ if __name__ == "__main__":
 
     # Visualize the results (disparity histograms and 3D scatter animation)
     # network_dimensions = SNN_Network.get_network_dimensions()
-    network_dimensions = {'dim_x':dx, 'dim_y':dy, 'min_d':0, 'max_d':max_d}
-    Results = vis.Visualizer(network_dimensions=network_dimensions,
-                             experiment_name=experiment_name,
-                             membrane_potential_file="./membrane_potentials/Test_0.dat")
+#     network_dimensions = {'dim_x':dx, 'dim_y':dy, 'min_d':0, 'max_d':max_d}
+#     Results = vis.Visualizer(network_dimensions=network_dimensions,
+#                              experiment_name=experiment_name,
+#                              membrane_potential_file="./membrane_potentials/Test_0.dat")
     # Results.microensemble_voltage_plot(save_figure=True)
     # Results.disparity_histogram(over_time=True, save_figure=True)
     # Results.scatter_animation(dimension=3, save_animation=True, rotate=True)
