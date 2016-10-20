@@ -3,7 +3,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-ps.setup(timestep=0.2, min_delay=0.2, max_delay=10*0.2)
+ps.setup(timestep=0.2, min_delay=0.2, max_delay=5.0)
 
 neural_params = {'tau_E': 2.0,
                     'tau_I': 2.0,
@@ -42,7 +42,7 @@ collector.record_v()
 # connect retina and blockers
 # ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -20.5, 0.2),(1, 0, -20.5, 0.2)]), target='inhibitory')
 
-ps.Projection(pixel_l, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
+ps.Projection(pixel_l, collector, ps.FromListConnector([(0, 0, 20.5, 3.6)]), target='excitatory')
 ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 0, 22.5, 0.2)]), target='excitatory')
 ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 1, -22.5, 0.2)]), target='inhibitory')
 
