@@ -48,9 +48,9 @@ if __name__ == "__main__":
     Simulation.run()
 
     # Store the results in a file
-#     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=False)
+    disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=False)
     membrane_potential = SNN_Network.get_v(save_v=True)
-#     print(disparities)
+    print(disparities)
     print(membrane_potential)
 
     # Finish the simulation
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     Results = vis.Visualizer(network_dimensions=network_dimensions,
                              experiment_name=experiment_name,
                              membrane_potential_file="./membrane_potentials/Test_0.dat")
-    Results.microensemble_voltage_plot(save_figure=True)
+    # Results.microensemble_voltage_plot(save_figure=True)
     # Results.disparity_histogram(over_time=True, save_figure=True)
     # Results.scatter_animation(dimension=3, save_animation=True, rotate=True)
 
