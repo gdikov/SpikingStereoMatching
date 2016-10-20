@@ -54,15 +54,15 @@ class CooperativeNetwork(object):
                                 'tau_mem': 2.07,
                                 'v_reset_blocker': -84.0,
                                 'v_reset_collector': -90.0}
-            params['synaptic'] = {'wBC': -20.5,
+            params['synaptic'] = {'wBC': 20.5,  #-20.5: negative won't work. However keep in mind that it is inhibitory!
                                   'dBC': simulation_time_step,
                                   'wSC': 20.5,
                                   'dSC': 1.6,
                                   'wSaB': 22.5,
                                   'dSaB': simulation_time_step,
-                                  'wSzB': -22.5,
+                                  'wSzB': 22.5,    # same story here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': -50.0,
+                                  'wCCi': 50.0,    # and again
                                   'dCCi': simulation_time_step,
                                   'wCCe': 3.0,
                                   'dCCe': simulation_time_step}
@@ -74,15 +74,15 @@ class CooperativeNetwork(object):
                                 'tau_mem': 1.07,
                                 'v_reset_blocker': -92.0,
                                 'v_reset_collector': -102.0}
-            params['synaptic'] = {'wBC': -39.5,
+            params['synaptic'] = {'wBC': 39.5, #weight should be positive numbers, indicated as inhibitory synapses (if necessary)!
                                   'dBC': simulation_time_step,
                                   'wSC': 39.5,
                                   'dSC': 0.8,
                                   'wSaB': 49.5,
                                   'dSaB': simulation_time_step,
-                                  'wSzB': -39.5,
+                                  'wSzB': 39.5, # same here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': -50.0,
+                                  'wCCi': 50.0, # and here
                                   'dCCi': simulation_time_step,
                                   'wCCe': 3.0,
                                   'dCCe': simulation_time_step}
