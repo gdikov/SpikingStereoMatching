@@ -1,4 +1,6 @@
 import spynnaker.pyNN as ps
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ps.setup(timestep=0.2, min_delay=0.2, max_delay=10*0.2)
@@ -42,7 +44,8 @@ ps.Projection(pixel, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), targe
 
 ps.run(100)
 
-voltage = collector[1].get_v()
+voltage = collector.get_v()
+print(voltage)
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
