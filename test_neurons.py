@@ -23,24 +23,31 @@ synaptic_params = {'wBC': -20.5,
                       'wCCe': 3.0,
                       'dCCe': 0.2}
 
-pixel = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [1]}, label="px")
+pixel_l = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [1]}, label="px_l")
+pixel_r = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [100]}, label="px_r")
 
-# blocker = ps.Population(1 * 2, ps.IF_curr_exp, {'tau_syn_E': neural_params['tau_E'],
-#                                                 'tau_syn_I': neural_params['tau_I'],
-#                                                 'tau_m': neural_params['tau_mem'],
-#                                                 'v_reset': neural_params['v_reset_blocker']}, label="bl")
+blocker = ps.Population(1 * 2, ps.IF_curr_exp, {'tau_syn_E': neural_params['tau_E'],
+                                                'tau_syn_I': neural_params['tau_I'],
+                                                'tau_m': neural_params['tau_mem'],
+                                                'v_reset': neural_params['v_reset_blocker']}, label="bl_lr")
+
 collector = ps.Population(1, ps.IF_curr_exp, {'tau_syn_E': neural_params['tau_E'],
                                               'tau_syn_I': neural_params['tau_I'],
                                               'tau_m': neural_params['tau_mem'],
                                               'v_reset': neural_params['v_reset_collector']}, label="cl")
 
-# blocker.record_v()
+blocker.record_v()
 collector.record_v()
 
-# ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -5, 0.2),(1, 0, -5, 0.2)]), target='inhibitory')
-ps.Projection(pixel, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
-# ps.Projection(pixel, blocker, ps.FromListConnector([(0, 0, -5, 0.2),(1, 0, -5, 0.2)]), target='excitatory')
-# ps.Projection(pixel, blocker, ps.FromListConnector([(0, 0, -5, 0.2),(1, 0, -5, 0.2)]), target='inhibitory')
+ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -20.5, 0.2),(1, 0, -20.5, 0.2)]), target='inhibitory')
+
+ps.Projection(pixel_l, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
+ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 0, 22.5, 0.2)]), target='excitatory')
+ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 1, -22.5, 0.2)]), target='inhibitory')
+
+ps.Projection(pixel_r, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
+ps.Projection(pixel_r, blocker, ps.FromListConnector([(0, 1, 22.5, 0.2)]), target='excitatory')
+ps.Projection(pixel_r, blocker, ps.FromListConnector([(0, 0, -22.5, 0.2)]), target='inhibitory')
 
 ps.run(100)
 
