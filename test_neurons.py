@@ -42,7 +42,7 @@ ps.Projection(pixel, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), targe
 
 ps.run(100)
 
-voltage = [x[1].get_v() for x in collector]
+voltage = collector[1].get_v()
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
