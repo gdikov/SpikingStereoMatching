@@ -40,7 +40,7 @@ blocker.record_v()
 collector.record_v()
 
 # connect retina and blockers
-ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -20.5, 0.2),(1, 0, -20.5, 0.2)]), target='inhibitory')
+ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -200.5, 0.2),(1, 0, -20.5, 0.2)]), target='inhibitory')
 
 ps.Projection(pixel_l, collector, ps.FromListConnector([(0, 0, 20.5, 4.6)]), target='excitatory')
 ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 0, 22.5, 0.2)]), target='excitatory')
