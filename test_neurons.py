@@ -24,7 +24,7 @@ synaptic_params = {'wBC': -20.5,
                       'dCCe': 0.2}
 
 pixel_l = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [1]}, label="px_l")
-pixel_r = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [100]}, label="px_r")
+# pixel_r = ps.Population(1, ps.SpikeSourceArray, {'spike_times': [100]}, label="px_r")
 
 blocker = ps.Population(1 * 2, ps.IF_curr_exp, {'tau_syn_E': neural_params['tau_E'],
                                                 'tau_syn_I': neural_params['tau_I'],
@@ -45,18 +45,34 @@ ps.Projection(pixel_l, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), tar
 ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 0, 22.5, 0.2)]), target='excitatory')
 ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 1, -22.5, 0.2)]), target='inhibitory')
 
-ps.Projection(pixel_r, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
-ps.Projection(pixel_r, blocker, ps.FromListConnector([(0, 1, 22.5, 0.2)]), target='excitatory')
-ps.Projection(pixel_r, blocker, ps.FromListConnector([(0, 0, -22.5, 0.2)]), target='inhibitory')
+# ps.Projection(pixel_r, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
+# ps.Projection(pixel_r, blocker, ps.FromListConnector([(0, 1, 22.5, 0.2)]), target='excitatory')
+# ps.Projection(pixel_r, blocker, ps.FromListConnector([(0, 0, -22.5, 0.2)]), target='inhibitory')
 
 ps.run(100)
 
-voltage = collector.get_v()
-print(voltage)
+voltage_c = collector.get_v()
+voltage_b = blocker.get_v()
+print(voltage_c)
+print(voltage_b)
 
 fig = plt.figure()
-ax1 = fig.add_subplot(111)
-ax1.plot(voltage[: , 1], voltage[:, 2])
+ax1 = fig.add_subplot(311)
+ax2 = fig.add_subplot(312)
+ax3 = fig.add_subplot(313)
+
+ax1.plot(voltage_c[: , 1], voltage_c[:, 2])
+ax2.plot(voltage_b[0, : , 1], voltage_b[0, :, 2])
+ax3.plot(voltage_b[1, : , 1], voltage_b[1, :, 2])
+
+ax1.set_title('Collector')
+ax2.set_title('Blocker left')
+ax3.set_title('Blocker right')
+
+fig.text(0.5, 0.04, 'time in ms', ha='center', va='center')
+fig.text(0.06, 0.5, 'voltage in mV', ha='center', va='center', rotation='vertical')
+
 plt.savefig("./figures/Test_voltage.png")
+
 
 ps.end()
