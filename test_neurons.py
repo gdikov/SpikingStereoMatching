@@ -39,7 +39,8 @@ collector = ps.Population(1, ps.IF_curr_exp, {'tau_syn_E': neural_params['tau_E'
 blocker.record_v()
 collector.record_v()
 
-ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -20.5, 0.2),(1, 0, -20.5, 0.2)]), target='inhibitory')
+# connect retina and blockers
+# ps.Projection(blocker, collector, ps.FromListConnector([(0, 0, -20.5, 0.2),(1, 0, -20.5, 0.2)]), target='inhibitory')
 
 ps.Projection(pixel_l, collector, ps.FromListConnector([(0, 0, 20.5, 1.6)]), target='excitatory')
 ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 0, 22.5, 0.2)]), target='excitatory')
@@ -51,12 +52,12 @@ ps.Projection(pixel_l, blocker, ps.FromListConnector([(0, 1, -22.5, 0.2)]), targ
 
 ps.run(100)
 
+# get voltage and plot it
+
 voltage_c = collector.get_v()
 voltage_b = blocker.get_v()
 print(voltage_c)
 print(voltage_b)
-
-
 
 fig = plt.figure()
 ax1 = fig.add_subplot(311)
