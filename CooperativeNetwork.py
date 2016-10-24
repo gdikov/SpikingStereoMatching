@@ -417,9 +417,9 @@ class CooperativeNetwork(object):
             if not os.path.exists("./spikes"):
                 os.makedirs("./spikes")
             i = 0
-            while os.path.exists("./spikes/{0}_{1}.dat".format(self.experiment_name, i)):
+            while os.path.exists("./spikes/{0}_{1}_spikes.dat".format(self.experiment_name, i)):
                 i += 1
-            with open('./spikes/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+            with open('./spikes/{0}_{1}_spikes.dat'.format(self.experiment_name, i), 'w') as f:
                 self._write_preamble(f)
                 f.write("### DATA FORMAT ###\n"
                         "# Description: All spikes from the Collector Neurons are recorded. The disparity is inferred "
@@ -446,9 +446,9 @@ class CooperativeNetwork(object):
                     if not os.path.exists("./spikes"):
                         os.makedirs("./spikes")
                     i = 0
-                    while os.path.exists("./spikes/{0}_disp_{1}.dat".format(self.experiment_name, i)):
+                    while os.path.exists("./spikes/{0}_{1}_disp.dat".format(self.experiment_name, i)):
                         i += 1
-                    with open('./spikes/{0}_disp_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+                    with open('./spikes/{0}_{1}_disp.dat'.format(self.experiment_name, i), 'w') as f:
                         self._write_preamble(f)
                         for s in spikes_per_disparity_map:
                             f.write(str(s) + "\n")
@@ -466,9 +466,9 @@ class CooperativeNetwork(object):
             if not os.path.exists("./membrane_potentials"):
                 os.makedirs("./membrane_potentials")
             i = 0
-            while os.path.exists("./membrane_potentials/{0}_{1}.dat".format(self.experiment_name, i)):
+            while os.path.exists("./membrane_potentials/{0}_{1}_vmem.dat".format(self.experiment_name, i)):
                 i += 1
-            with open('./membrane_potentials/{0}_{1}.dat'.format(self.experiment_name, i), 'w') as f:
+            with open('./membrane_potentials/{0}_{1}_vmem.dat'.format(self.experiment_name, i), 'w') as f:
                 self._write_preamble(f)
                 f.write("### DATA FORMAT ###\n"
                         "# Description: First all Blocker Populations are being printed. "
