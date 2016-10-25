@@ -14,8 +14,8 @@ if __name__ == "__main__":
 
     experiment_name = "FanInputTest"
     experiment_duration = 10000
-    dx = 129
-    dy = 129
+    dx = 64
+    dy = 64
     max_d = 16
 
     # Setup the simulation
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
                                 dim_x=dx,
                                 dim_y=dy,
-                                crop_window=False,
+                                crop_window=True,
                                 sim_time=experiment_duration)
 
     # Create two instances of Retinas with the respective inputs
