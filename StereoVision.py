@@ -12,36 +12,40 @@ import Simulation as sim
 
 if __name__ == "__main__":
 
-    experiment_name = "Test"
-    experiment_duration = 50
-    dx = 1
-    dy = 1
-    max_d = 0
+    experiment_name = "SmallInputTest"
+    experiment_duration = 500
+    dx = 10
+    dy = 10
+    max_d = 10
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    # ExternalRetinaInput = \
-    #     eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
-    #                             "StereoMatching/master/Data/Input_Events/"
-    #                             "Small_input_test.dat",
-    #                             dim_x=dx,
-    #                             dim_y=dy,
-    #                             crop_window=False,
-    #                             sim_time=experiment_duration)
+    ExternalRetinaInput = \
+        eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
+                                "StereoMatching/master/Data/Input_Events/"
+                                "Small_input_test.dat",
+                                dim_x=dx,
+                                dim_y=dy,
+                                crop_window=False,
+                                sim_time=experiment_duration)
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                         spike_times=[[1, 25, 26, 27, 40]])
+                         spike_times=ExternalRetinaInput.retinaLeft)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                         spike_times=[[9, 41]])
+                         spike_times=ExternalRetinaInput.retinaRight)
+#    RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
+#                         spike_times=[[1, 25, 26, 27, 40]])
+#    RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
+#                         spike_times=[[9, 41]])
 
     # Create a cooperative network for stereo vision from retinal disparity
     SNN_Network = net.CooperativeNetwork(retinae={'left': RetinaL, 'right': RetinaR},
                                          max_disparity=max_d,
                                          record_spikes=True,
-                                         record_v=True,
+                                         record_v=False,
                                          experiment_name=experiment_name)
 
     # Start the simulation
@@ -49,9 +53,9 @@ if __name__ == "__main__":
 
     # Store the results in a file
     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
-    membrane_potential = SNN_Network.get_v(save_v=True)
+#    membrane_potential = SNN_Network.get_v(save_v=True)
     print(disparities)
-    print(membrane_potential)
+#    print(membrane_potential)
 
     # Finish the simulation
     Simulation.end()
