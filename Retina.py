@@ -72,7 +72,7 @@ class Retina(object):
                     col_of_pixels.record()
 
     def get_spikes(self, sort_by_time=True, save_spikes=True):
-        spikes_per_population = [x[1].getSpikes() for x in self.pixel_columns]
+        spikes_per_population = [x.getSpikes() for x in self.pixel_columns]
         spikes = list()
         for col_index, col in enumerate(spikes_per_population, 0):  # it is 0-indexed
             # for each spike in the population extract the timestamp and x,y coordinates

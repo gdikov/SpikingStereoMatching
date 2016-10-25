@@ -13,7 +13,7 @@ import Simulation as sim
 if __name__ == "__main__":
 
     experiment_name = "SmallTest"
-    experiment_duration = 10000
+    experiment_duration = 1000
     dx = 5
     dy = 5
     max_d = 4
@@ -32,9 +32,11 @@ if __name__ == "__main__":
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaLeft,
+                         record_spikes=True,
                          experiment_name=experiment_name)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaRight,
+                         record_spikes=True,
                          experiment_name=experiment_name)
    # RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
 #                         spike_times=[[1, 25, 26, 27, 40]])
