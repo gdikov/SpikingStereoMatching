@@ -22,7 +22,7 @@ if __name__ == "__main__":
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = npz_reader("input_data/warning1_lr.npz", 
+    ExternalRetinaInput = npz.NPZInputReader("input_data/warning1_lr.npz", 
                                      dim_x=dx,dim_y=dy,sim_time=experiment_duration)
 #        eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
 #                                dim_x=dx,
