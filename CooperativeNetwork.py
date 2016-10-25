@@ -62,7 +62,7 @@ class CooperativeNetwork(object):
                                   'dSaB': simulation_time_step,
                                   'wSzB': 22.5,    # same story here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': 20.0,    # and again
+                                  'wCCi': 50.0,    # and again
                                   'dCCi': simulation_time_step,
                                   'wCCe': 3.0,
                                   'dCCe': simulation_time_step}
