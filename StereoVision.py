@@ -12,21 +12,21 @@ import Simulation as sim
 
 if __name__ == "__main__":
 
-    experiment_name = "SmallTest"
-    experiment_duration = 1000
-    dx = 5
-    dy = 5
-    max_d = 4
+    experiment_name = "FanTest"
+    experiment_duration = 10000
+    dx = 64
+    dy = 64
+    max_d = 20
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
     ExternalRetinaInput = \
-        eir.ExternalInputReader(file_path="input_data/Small_input_test.dat",
+        eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
                                 dim_x=dx,
                                 dim_y=dy,
-                                crop_window=False,
+                                crop_window=True,
                                 sim_time=experiment_duration)
 
     # Create two instances of Retinas with the respective inputs
