@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Define the input source
     ExternalRetinaInput = \
-        eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
+        eir.ExternalInputReader(file_path="input_data/NSTlogo_disp12-8-3.dat",
                                 dim_x=dx,
                                 dim_y=dy,
                                 crop_window=True,
