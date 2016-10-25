@@ -14,8 +14,8 @@ if __name__ == "__main__":
 
     experiment_name = "FanInputTest"
     experiment_duration = 10000
-    dx = 128
-    dy = 128
+    dx = 129
+    dy = 129
     max_d = 16
 
     # Setup the simulation
