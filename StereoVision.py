@@ -6,7 +6,7 @@
 
 import CooperativeNetwork as net
 import Retina as ret
-# import ExternalInputReader as eir
+import ExternalInputReader as eir
 import Simulation as sim
 # import Visualizer as vis
 
@@ -16,16 +16,14 @@ if __name__ == "__main__":
     experiment_duration = 500
     dx = 10
     dy = 10
-    max_d = 10
+    max_d = 5
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
     ExternalRetinaInput = \
-        eir.ExternalInputReader(url="https://raw.githubusercontent.com/gdikov/"
-                                "StereoMatching/master/Data/Input_Events/"
-                                "Small_input_test.dat",
+        eir.ExternalInputReader(file_path="input_data/Small_input_test.dat",
                                 dim_x=dx,
                                 dim_y=dy,
                                 crop_window=False,
