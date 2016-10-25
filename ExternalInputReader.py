@@ -29,12 +29,16 @@ class ExternalInputReader():
             # connect to website and parse text data
             file = urllib.urlopen(url)
             rawdata = file.read()
+            file.close()
             # print(rawdata)
         elif file_path is not "" and file_path[-4:] == ".dat":
-            rawdata = []
-            with open(file_path, 'rb') as allEvents:
-                for line in allEvents:
-                    rawdata.append([int(x) for x in line.split()])
+            with open(file_path, 'r') as file:
+                rawdata = file.read()
+                file.close()
+#            rawdata = []
+#            with open(file_path, 'rb') as allEvents:
+#                for line in allEvents:
+#                    rawdata.append([int(x) for x in line.split()])
 
         # read the file line by line and extract the timestamp, x and y coordinates, polarity and retina ID.
         eventList = []
