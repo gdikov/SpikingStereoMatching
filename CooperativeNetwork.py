@@ -419,9 +419,9 @@ class CooperativeNetwork(object):
             i = 0
             while os.path.exists("./spikes/{0}_{1}_spikes.dat".format(self.experiment_name, i)):
                 i += 1
-            with open('./spikes/{0}_{1}_spikes.dat'.format(self.experiment_name, i), 'w') as f:
-                self._write_preamble(f)
-                f.write("### DATA FORMAT ###\n"
+            with open('./spikes/{0}_{1}_spikes.dat'.format(self.experiment_name, i), 'w') as fs:
+                self._write_preamble(fs)
+                fs.write("### DATA FORMAT ###\n"
                         "# Description: All spikes from the Collector Neurons are recorded. The disparity is inferred "
                         "from the Neuron ID. The disparity is calculated with the left camera as reference."
                         "The timestamp is dependent on the simulation parameters (simulation timestep).\n"
@@ -429,8 +429,9 @@ class CooperativeNetwork(object):
                         "Time -- x-coordinate -- y-coordinate -- disparity\n"
                         "### DATA START ###\n")
                 for s in spikes:
-                    f.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
-                f.write("### DATA END ###")
+                    fs.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
+                fs.write("### DATA END ###")
+                fs.close()
         return spikes
 
     """ this method returns the accumulated spikes for each disparity as a list. It is not very useful except when
@@ -448,10 +449,11 @@ class CooperativeNetwork(object):
                     i = 0
                     while os.path.exists("./spikes/{0}_{1}_disp.dat".format(self.experiment_name, i)):
                         i += 1
-                    with open('./spikes/{0}_{1}_disp.dat'.format(self.experiment_name, i), 'w') as f:
-                        self._write_preamble(f)
+                    with open('./spikes/{0}_{1}_disp.dat'.format(self.experiment_name, i), 'w') as fd:
+                        self._write_preamble(fd)
                         for s in spikes_per_disparity_map:
-                            f.write(str(s) + "\n")
+                            fd.write(str(s) + "\n")
+                        fd.close()
                 return spikes_per_disparity_map
         else:
             # this is pretty useless. maybe it should be removed in the future
@@ -468,9 +470,9 @@ class CooperativeNetwork(object):
             i = 0
             while os.path.exists("./membrane_potentials/{0}_{1}_vmem.dat".format(self.experiment_name, i)):
                 i += 1
-            with open('./membrane_potentials/{0}_{1}_vmem.dat'.format(self.experiment_name, i), 'w') as f:
-                self._write_preamble(f)
-                f.write("### DATA FORMAT ###\n"
+            with open('./membrane_potentials/{0}_{1}_vmem.dat'.format(self.experiment_name, i), 'w') as fv:
+                self._write_preamble(fv)
+                fv.write("### DATA FORMAT ###\n"
                         "# Description: First all Blocker Populations are being printed. "
                         "Then all Collector populations. Both are sorted by Population ID (i.e. order of creation). "
                         "Each Blocker/Collector Population lists all neurons, sorted by Neuron ID. "
@@ -480,11 +482,12 @@ class CooperativeNetwork(object):
                         "### DATA START ###\n")
                 for pop_id, pop_v in enumerate(voltages["blockers_v"]):
                     for v in pop_v:
-                        f.write("b " + str(int(pop_id)) + " " + str(int(v[0])) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+                        fv.write("b " + str(int(pop_id)) + " " + str(int(v[0])) + " " + str(v[1]) + " " + str(v[2]) + "\n")
                 for pop_id, pop_v in enumerate(voltages["collector_v"]):
                     for v in pop_v:
-                        f.write("c " + str(int(pop_id)) + " " + str(int(v[0])) + " " + str(v[1]) + " " + str(v[2]) + "\n")
-                f.write("### DATA END ###")
+                        fv.write("c " + str(int(pop_id)) + " " + str(int(v[0])) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+                fv.write("### DATA END ###")
+                fv.close()
         return voltages
 
     def _write_preamble(self, opened_file_descriptor):
