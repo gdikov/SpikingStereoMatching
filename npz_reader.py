@@ -1,3 +1,4 @@
+from numpy import load
 
 class NPZInputReader():
   def __init__(self, file_path="", dim_x=1, dim_y=1, sim_time=1000):
