@@ -10,8 +10,14 @@ class NPZInputReader():
     right=f["right"]
     
     for t,x,y,p in left:
-      self.retinaLeft[x][y].append(t/1000.)
+      t/=1000.
+      if t > sim_time:
+        break
+      self.retinaLeft[x][y].append(t)
     
     for t,x,y,p in right:
-      self.retinaRight[x][y].append(t/1000.)
+      t/=1000.
+      if t > sim_time:
+        break
+      self.retinaRight[x][y].append(t)
 
