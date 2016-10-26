@@ -7,28 +7,26 @@
 import CooperativeNetwork as net
 import Retina as ret
 import ExternalInputReader as eir
-import npz_reader as npz
 import Simulation as sim
 # import Visualizer as vis
 
 if __name__ == "__main__":
     experiment_name = "WarningSign1"
-    experiment_duration = 9000
-    dx = 128
-    dy = 128
-    max_d = 48
+    experiment_duration = 9000  # in ms
+    dx = 128                    # in pixels
+    dy = 128                    # in pixels
+    max_d = 0                   # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = npz.NPZInputReader("input_data/warning1_lr.npz", 
-                                     dim_x=dx,dim_y=dy,sim_time=experiment_duration)
-#        eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
-#                                dim_x=dx,
-#                                dim_y=dy,
-#                                crop_window=True,
-#                                sim_time=experiment_duration)
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/warning1_lr.npz",
+                                                  dim_x=dx,
+                                                  dim_y=dy,
+                                                  crop_window=True,
+                                                  sim_time=experiment_duration,
+                                                  is_rawdata_time_in_ms=True)
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,

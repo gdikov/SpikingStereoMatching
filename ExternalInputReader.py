@@ -6,7 +6,13 @@ import urllib
 # where spike_time is in microseconds, position_x and position_y are pixel coordinates in the range [1, dim_x(dim_y)]
 # polarity is the event type (0 OFF, 1 ON) and retina is the retina ID (0 left, 1 right) (or the other way round :D)
 class ExternalInputReader():
-    def __init__(self, url="", file_path="", crop_window=False, dim_x=1, dim_y=1, sim_time=1000):
+    def __init__(self, url="",
+                 file_path="",
+                 crop_window=False,
+                 dim_x=1,
+                 dim_y=1,
+                 sim_time=1000,
+                 is_rawdata_time_in_ms=True):
         # these are the attributes which contain will contain the sorted, filtered and formatted spikes for each pixel
         self.retinaLeft = []
         self.retinaRight = []
@@ -23,28 +29,40 @@ class ExternalInputReader():
             return
 
         rawdata = None
-
+        eventList = []
         # check the url or the file path, read the data file and pass it further down for processing.
         if url is not "" and url[-4:] == ".dat":
             # connect to website and parse text data
             file = urllib.urlopen(url)
             rawdata = file.read()
             file.close()
-            # print(rawdata)
+            # read the file line by line and extract the timestamp, x and y coordinates, polarity and retina ID.
+            # TODO: add a case for different files like the npz, which are read from other servers.
+            for e in rawdata.split('\n'):
+                if e != '':
+                    eventList.append([int(x) for x in e.split()])
         elif file_path is not "" and file_path[-4:] == ".dat":
             with open(file_path, 'r') as file:
                 rawdata = file.read()
                 file.close()
-#            rawdata = []
-#            with open(file_path, 'rb') as allEvents:
-#                for line in allEvents:
-#                    rawdata.append([int(x) for x in line.split()])
+            # read the file line by line and extract the timestamp, x and y coordinates, polarity and retina ID.
+            for e in rawdata.split('\n'):
+                if e != '':
+                    eventList.append([int(x) for x in e.split()])
+        elif file_path is not "" and file_path[-4:] == ".npz":
+            from numpy import load as load_npz_file
+            f = load_npz_file(file_path)
+            data_left = f["left"]
+            data_right = f["right"]
+            for t, x, y, p in data_left:
+                if t > sim_time:
+                    break
+                eventList.append([int(t), int(x), int(y), int(p), 1])
+            for t, x, y, p in data_right:
+                if t > sim_time:
+                    break
+                eventList.append([int(t), int(x), int(y), int(p), 0])
 
-        # read the file line by line and extract the timestamp, x and y coordinates, polarity and retina ID.
-        eventList = []
-        for e in rawdata.split('\n'):
-            if e != '':
-                eventList.append([int(x) for x in e.split()])
 
         # initialise the maximum time constant as the total simulation duration. This is needed to set a value
         # for pixels which don't spike at all, since the pyNN frontend requires so.
@@ -52,16 +70,9 @@ class ExternalInputReader():
         max_time = sim_time
 
         # containers for the formatted spikes
-        retinaL = []
-        retinaR = []
-
-        # define as list of lists so that SpikeSourceArray don't complain
-        for y in range(0, dim_x):
-            retinaR.append([])
-            retinaL.append([])
-            for x in range(0, dim_y):
-                retinaR[y].append([])
-                retinaL[y].append([])
+        # define as list of lists of lists so that SpikeSourceArrays don't complain
+        retinaL = [[[] for y in range(dim_y)] for x in range(dim_x)]
+        retinaR = [[[] for y in range(dim_y)] for x in range(dim_x)]
 
         # last time a spike has occured for a pixel -- used to filter event bursts
         last_tL = [[0.0]]
@@ -77,7 +88,10 @@ class ExternalInputReader():
         for evt in eventList:
             x = evt[1] - 1
             y = evt[2] - 1
-            t = evt[0] / 1000.0  # retina event time steps are in micro seconds, so convert to milliseconds
+            if not is_rawdata_time_in_ms:
+                t = evt[0] / 1000.0  # retina event time steps are in micro seconds, so convert to milliseconds
+            else:
+                t = evt[0]
 
             # use these lower and upper bounds to get pixels from a centered window only (if the dataset contains
             # pixels which are out of current network capability)
