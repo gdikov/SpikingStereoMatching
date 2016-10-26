@@ -8,13 +8,10 @@ class NPZInputReader():
     f=load(file_path)
     left=f["left"]
     right=f["right"]
-    left["time"] /= 1000. # us to ms
-    right["time"] /= 1000.
     
     for t,x,y,p in left:
-      self.retinaLeft[x][y].append(t)
+      self.retinaLeft[x][y].append(t/1000.)
     
     for t,x,y,p in right:
-      self.retinaRight[x][y].append(t)
-
+      self.retinaRight[x][y].append(t/1000.)
 
