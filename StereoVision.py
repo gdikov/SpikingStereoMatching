@@ -13,9 +13,9 @@ import Simulation as sim
 if __name__ == "__main__":
     experiment_name = "WarningSign1"
     experiment_duration = 9000  # in ms
-    dx = 128                    # in pixels
-    dy = 128                    # in pixels
-    max_d = 0                   # in pixels
+    dx = 20                    # in pixels
+    dy = 20                    # in pixels
+    max_d = 3                   # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
