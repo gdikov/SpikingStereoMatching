@@ -12,9 +12,9 @@ import Simulation as sim
 
 if __name__ == "__main__":
     experiment_name = "Fan_swaped_ret"
-    experiment_duration = 9000  # in ms
-    dx = 50                    # in pixels
-    dy = 50                    # in pixels
+    experiment_duration = 10000  # in ms
+    dx = 40                    # in pixels
+    dy = 100                    # in pixels
     max_d = 16                   # in pixels
 
     # Setup the simulation
