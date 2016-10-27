@@ -101,8 +101,7 @@ class CooperativeNetwork(object):
 
     def _create_network(self, record_spikes=False, record_v=False, verbose=False):
 
-        if verbose:
-            print("INFO: Creating Cooperative Network of size {0}".format(self.size))
+        print("INFO: Creating Cooperative Network of size {0} (in microensembles).".format(self.size))
 
         if record_spikes:
             from pyNN.spiNNaker import record
