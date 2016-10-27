@@ -11,33 +11,33 @@ import Simulation as sim
 # import Visualizer as vis
 
 if __name__ == "__main__":
-    experiment_name = "WarningSign1"
+    experiment_name = "Fan_swaped_ret"
     experiment_duration = 9000  # in ms
-    dx = 20                    # in pixels
-    dy = 20                    # in pixels
-    max_d = 3                   # in pixels
+    dx = 50                    # in pixels
+    dy = 50                    # in pixels
+    max_d = 16                   # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/warning1_lr.npz",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
                                                   dim_x=dx,
                                                   dim_y=dy,
                                                   crop_window=True,
                                                   sim_time=experiment_duration,
-                                                  is_rawdata_time_in_ms=True)
+                                                  is_rawdata_time_in_ms=False)
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                         spike_times=ExternalRetinaInput.retinaLeft,
-                         record_spikes=True,
-                         experiment_name=experiment_name)
-    RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaRight,
                          record_spikes=True,
                          experiment_name=experiment_name)
-   # RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
+    RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
+                         spike_times=ExternalRetinaInput.retinaLeft,
+                         record_spikes=True,
+                         experiment_name=experiment_name)
+#    RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
 #                         spike_times=[[1, 25, 26, 27, 40]])
 #    RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
 #                         spike_times=[[9, 41]])
