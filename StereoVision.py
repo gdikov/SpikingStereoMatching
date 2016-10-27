@@ -11,17 +11,17 @@ import Simulation as sim
 # import Visualizer as vis
 
 if __name__ == "__main__":
-    experiment_name = "Fan_swaped_ret"
+    experiment_name = "Test_HBP"
     experiment_duration = 10000  # in ms
-    dx = 40                    # in pixels
-    dy = 100                    # in pixels
+    dx = 30                    # in pixels
+    dy = 20                    # in pixels
     max_d = 16                   # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Fan_disp8.dat",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/NSTlogo_disp12-8-3.dat.dat",
                                                   dim_x=dx,
                                                   dim_y=dy,
                                                   crop_window=True,
@@ -30,11 +30,11 @@ if __name__ == "__main__":
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                         spike_times=ExternalRetinaInput.retinaRight,
+                         spike_times=ExternalRetinaInput.retinaLeft,
                          record_spikes=False,
                          experiment_name=experiment_name)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                         spike_times=ExternalRetinaInput.retinaLeft,
+                         spike_times=ExternalRetinaInput.retinaRight,
                          record_spikes=False,
                          experiment_name=experiment_name)
 #    RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
