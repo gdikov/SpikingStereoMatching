@@ -31,11 +31,11 @@ if __name__ == "__main__":
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaRight,
-                         record_spikes=True,
+                         record_spikes=False,
                          experiment_name=experiment_name)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaLeft,
-                         record_spikes=True,
+                         record_spikes=False,
                          experiment_name=experiment_name)
 #    RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
 #                         spike_times=[[1, 25, 26, 27, 40]])
@@ -54,8 +54,8 @@ if __name__ == "__main__":
 
     # Store the results in a file
     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
-    ret_left_spikes = RetinaL.get_spikes(sort_by_time=True, save_spikes=True)
-    ret_right_spikes = RetinaR.get_spikes(sort_by_time=True, save_spikes=True)
+#     ret_left_spikes = RetinaL.get_spikes(sort_by_time=True, save_spikes=True)
+#     ret_right_spikes = RetinaR.get_spikes(sort_by_time=True, save_spikes=True)
 #    membrane_potential = SNN_Network.get_v(save_v=True)
 #     print(disparities)
 #    print(membrane_potential)
