@@ -57,11 +57,11 @@ class ExternalInputReader():
             for t, x, y, p in data_left:
                 if t > sim_time:
                     break
-                eventList.append([int(t), int(x), int(y), int(p), 1])
+                eventList.append([float(t), int(x), int(y), int(p), 1])
             for t, x, y, p in data_right:
                 if t > sim_time:
                     break
-                eventList.append([int(t), int(x), int(y), int(p), 0])
+                eventList.append([float(t), int(x), int(y), int(p), 0])
 
 
         # initialise the maximum time constant as the total simulation duration. This is needed to set a value
