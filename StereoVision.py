@@ -21,7 +21,7 @@ if __name__ == "__main__":
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/NSTlogo_disp12-8-3.dat.dat",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/NSTlogo_disp12-8-3.dat",
                                                   dim_x=dx,
                                                   dim_y=dy,
                                                   crop_window=True,
