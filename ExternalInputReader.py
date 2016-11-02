@@ -55,12 +55,20 @@ class ExternalInputReader():
             data_left = f["left"]
             data_right = f["right"]
             for t, x, y, p in data_left:
-                if t > sim_time * 1000:
-                    break
+                if is_rawdata_time_in_ms:
+                    if t > sim_time:
+                        break
+                else:
+                    if t > sim_time * 1000:
+                        break
                 eventList.append([float(t), int(x), int(y), int(p), 1])
             for t, x, y, p in data_right:
-                if t > sim_time * 1000:
-                    break
+                if is_rawdata_time_in_ms:
+                    if t > sim_time:
+                        break
+                else:
+                    if t > sim_time * 1000:
+                        break
                 eventList.append([float(t), int(x), int(y), int(p), 0])
 
 
