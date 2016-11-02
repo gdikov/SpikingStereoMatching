@@ -8,7 +8,10 @@ import urllib
 class ExternalInputReader():
     def __init__(self, url="",
                  file_path="",
-                 crop_window=False,
+                 crop_xmin=-1,
+                 crop_ymin=-1,
+                 crop_xmax=-1,
+                 crop_ymax=-1,
                  dim_x=1,
                  dim_y=1,
                  sim_time=1000,
@@ -16,12 +19,6 @@ class ExternalInputReader():
         # these are the attributes which contain will contain the sorted, filtered and formatted spikes for each pixel
         self.retinaLeft = []
         self.retinaRight = []
-        
-        crop_window_x = -1
-        crop_window_y = -1
-        if crop_window:
-            crop_window_x = dim_x
-            crop_window_y = dim_y
 
         if url is not "" and file_path is not "" or \
             url is "" and file_path is "":
@@ -101,29 +98,21 @@ class ExternalInputReader():
             else:
                 t = evt[0]
 
-            # use these lower and upper bounds to get pixels from a centered window only (if the dataset contains
-            # pixels which are out of current network capability)
-            lowerBoundX = (128 - crop_window_x) / 2
-            upperBoundX = (128 + crop_window_x) / 2
-
-            lowerBoundY = (128 - crop_window_y) / 2
-            upperBoundY = (128 + crop_window_y) / 2
-
             # firstly, take events only from the within of a window centered at the retina view center,
             # then sort the left and the right events.
-            if crop_window_x >= 0 and crop_window_y >= 0:
-                if lowerBoundX <= x < upperBoundX and lowerBoundY <= y < upperBoundY:
+            if crop_xmax >= 0 and crop_xmin >= 0 and crop_ymax >= 0 and crop_ymin >= 0:
+                if crop_xmin <= x < crop_xmax and crop_ymin <= y < crop_ymax:
                     if evt[4] == 0:
                         # filter event bursts and limit the events to the maximum time for the simulation
-                        if t - last_tR[x - lowerBoundX][y - lowerBoundY] >= 1.0 and t <= max_time:
+                        if t - last_tR[x - crop_xmin][y - crop_ymin] >= 1.0 and t <= max_time:
                             # print "r", x, y, x-lowerBoundX, y-lowerBoundY
-                            retinaR[x - lowerBoundX][y - lowerBoundY].append(t)
-                            last_tR[x - lowerBoundX][y - lowerBoundY] = t
+                            retinaR[x - crop_xmin][y - crop_ymin].append(t)
+                            last_tR[x - crop_xmin][y - crop_ymin] = t
                     elif evt[4] == 1:
-                        if t - last_tL[x - lowerBoundX][y - lowerBoundY] >= 1.0 and t <= max_time:
+                        if t - last_tL[x - crop_xmin][y - crop_ymin] >= 1.0 and t <= max_time:
                             # 				print "l", x, y, x-lowerBoundX, y-lowerBoundY
-                            retinaL[x - lowerBoundX][y - lowerBoundY].append(t)
-                            last_tL[x - lowerBoundX][y - lowerBoundY] = t
+                            retinaL[x - crop_xmin][y - crop_ymin].append(t)
+                            last_tL[x - crop_xmin][y - crop_ymin] = t
             else:
                 if evt[4] == 0:
                     # apply the same time filtering
