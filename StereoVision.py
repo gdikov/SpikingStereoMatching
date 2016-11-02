@@ -11,20 +11,25 @@ import Simulation as sim
 # import Visualizer as vis
 
 if __name__ == "__main__":
-    experiment_name = "Test_HBP"
-    experiment_duration = 10000  # in ms
-    dx = 5                    # in pixels
-    dy = 5                    # in pixels
-    max_d = 4                   # in pixels
+    experiment_name = "Test_BackOn"
+    experiment_duration = 1000  # in ms
+    dx = 40                    # in pixels
+    dy = 40                    # in pixels
+    max_d = 15                 # in pixels
+    crop_xmin = 70              # in pixels
+    crop_ymin = 30              # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Small_input_test.dat",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Back_On_02_2xscaled.npz",
                                                   dim_x=dx,
                                                   dim_y=dy,
-                                                  crop_window=True,
+                                                  crop_xmin=crop_xmin,
+                                                  crop_xmax=crop_xmin+dx,
+                                                  crop_ymin=crop_ymin,
+                                                  crop_ymax=crop_ymin+dy,
                                                   sim_time=experiment_duration,
                                                   is_rawdata_time_in_ms=False)
 

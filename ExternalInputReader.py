@@ -101,7 +101,7 @@ class ExternalInputReader():
             # firstly, take events only from the within of a window centered at the retina view center,
             # then sort the left and the right events.
             if crop_xmax >= 0 and crop_xmin >= 0 and crop_ymax >= 0 and crop_ymin >= 0:
-                if crop_xmin <= x < crop_xmax and crop_ymin <= y < crop_ymax:
+                if crop_xmin <= x <= crop_xmax and crop_ymin <= y <= crop_ymax:
                     if evt[4] == 0:
                         # filter event bursts and limit the events to the maximum time for the simulation
                         if t - last_tR[x - crop_xmin][y - crop_ymin] >= 1.0 and t <= max_time:
