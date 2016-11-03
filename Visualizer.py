@@ -12,9 +12,6 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
 
-from moviepy.editor import VideoClip
-from moviepy.video.io.bindings import mplfig_to_npimage
-
 class Visualizer(object):
 
     def __init__(self, experiment_name="Experiment",
@@ -34,7 +31,7 @@ class Visualizer(object):
                 is_data = False
                 for line in events:
                     # skip preambles and other logged information
-                    if not "DATA START" and not "DATA END" in line:
+                    if not "DATA START" in line and not "DATA END" in line:
                         if not is_data:
                             continue
                         else:
@@ -168,6 +165,7 @@ class Visualizer(object):
 
 
 class _Scatter(object):
+
     """relative frame length is the length of each single frame measured as a fraction of
     the whole experiment duration. """
     def __init__(self, visualizer=None,
@@ -206,6 +204,7 @@ class _Scatter(object):
 
         self.file_format = export_format
         # print("duration", int((self.duration/1000+1)/speedup_factor))
+        from moviepy.editor import VideoClip
         self.anim = VideoClip(self._update_frame, duration=int((self.duration/1000+1)/speedup_factor))
 
     def _change_angle(self):
@@ -233,7 +232,7 @@ class _Scatter(object):
         self.ax.set_autoscale_on(False)
 
     def _update_frame(self, time):
-
+        from moviepy.video.io.bindings import mplfig_to_npimage
         if self.dimension == 3:
             if self.rotate:
                 self._change_angle()
@@ -324,7 +323,7 @@ class _Scatter(object):
                                       .format(self.visualizer.experiment_name, i, dim),
                                       fps=self.fps,
                                       codec='mpeg4',
-                                      bitrate='4000k',
+                                      bitrate='2000k',
                                       audio=False,
                                       verbose=self.visualizer.verbose)
         else:
