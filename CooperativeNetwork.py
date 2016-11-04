@@ -62,9 +62,9 @@ class CooperativeNetwork(object):
                                   'dSaB': simulation_time_step,
                                   'wSzB': 22.5,    # same story here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': 50.0,    # and again
+                                  'wCCi': 90.0,    # and again
                                   'dCCi': simulation_time_step,
-                                  'wCCe': 3.0,
+                                  'wCCe': 5.0,
                                   'dCCe': simulation_time_step}
             params['topological'] = {'radius_e': 1,
                                      'radius_i': max(self.dim_x, self.dim_y)}
