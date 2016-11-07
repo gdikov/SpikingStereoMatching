@@ -58,7 +58,7 @@ class ExternalInputReader():
                 else:
                     if t > sim_time * 1000:
                         break
-                eventList.append([float(t), int(x), int(y), int(p), 1])
+                eventList.append([float(t), int(x), int(y)-2, int(p), 1])
             for t, x, y, p in data_right:
                 if is_rawdata_time_in_ms:
                     if t > sim_time:
