@@ -102,24 +102,24 @@ class ExternalInputReader():
             # then sort the left and the right events.
             if crop_xmax >= 0 and crop_xmin >= 0 and crop_ymax >= 0 and crop_ymin >= 0:
                 if crop_xmin <= x < crop_xmax and crop_ymin <= y < crop_ymax:
-                    if evt[4] == 0:
+                    if evt[4] == 1:
                         # filter event bursts and limit the events to the maximum time for the simulation
                         if t - last_tR[x - crop_xmin][y - crop_ymin] >= 1.0 and t <= max_time:
                             # print "r", x, y, x-lowerBoundX, y-lowerBoundY
                             retinaR[x - crop_xmin][y - crop_ymin].append(t)
                             last_tR[x - crop_xmin][y - crop_ymin] = t
-                    elif evt[4] == 1:
+                    elif evt[4] == 0:
                         if t - last_tL[x - crop_xmin][y - crop_ymin] >= 1.0 and t <= max_time:
                             # 				print "l", x, y, x-lowerBoundX, y-lowerBoundY
                             retinaL[x - crop_xmin][y - crop_ymin].append(t)
                             last_tL[x - crop_xmin][y - crop_ymin] = t
             else:
-                if evt[4] == 0:
+                if evt[4] == 1:
                     # apply the same time filtering
                     if t - last_tR[x][y] >= 1.0 and t <= max_time:
                         retinaR[x][y].append(t)
                         last_tR[x][y] = t
-                elif evt[4] == 1:
+                elif evt[4] == 0:
                     if t - last_tL[x][y] >= 1.0 and t <= max_time:
                         retinaL[x][y].append(t)
                         last_tL[x][y] = t
