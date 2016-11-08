@@ -134,6 +134,9 @@ class Visualizer(object):
             cbar.set_label('Number of events per time slot (0.1 s)', rotation=270)
             cbar.ax.get_yaxis().labelpad = 15
 
+        if show_interactive:
+            plt.show()
+
         if save_figure:
             if not os.path.exists("./figures"):
                 os.makedirs("./figures")
@@ -141,8 +144,9 @@ class Visualizer(object):
             while os.path.exists("./figures/{0}_{1}.png".format(self.experiment_name, i)):
                 i += 1
             plt.savefig("./figures/{0}_{1}.png".format(self.experiment_name, i))
-        if show_interactive:
-            plt.show()
+
+
+        return [disps.count(c) for c in range(self.network_dimensions['min_d'], self.network_dimensions['max_d'])]
 
     def scatter_animation(self, dimension=3, save_animation=True, show_interactive=False, rotate=False):
 
