@@ -13,17 +13,17 @@ import Visualizer as vis
 if __name__ == "__main__":
     experiment_name = "Back_On_Front_Accel"
     experiment_duration = 10000  # in ms
-    dx = 70                    # in pixels
+    dx = 60                    # in pixels
     dy = 40                    # in pixels
-    max_d = 15                 # in pixels
-    crop_xmin = 40              # in pixels
-    crop_ymin = 25              # in pixels
+    max_d = 20                 # in pixels
+    crop_xmin = 44              # in pixels
+    crop_ymin = 22              # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Back_On_Front_Accel_2xscaled.npz",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Back_On_Front_Accel_Fixed_even.npz",
                                                   dim_x=dx,
                                                   dim_y=dy,
                                                   crop_xmin=crop_xmin,
@@ -36,11 +36,11 @@ if __name__ == "__main__":
     # Create two instances of Retinas with the respective inputs
     RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaRight,
-                         record_spikes=True,
+                         record_spikes=False,
                          experiment_name=experiment_name)
     RetinaR = ret.Retina(label="RetR", dimension_x=dx, dimension_y=dy,
                          spike_times=ExternalRetinaInput.retinaLeft,
-                         record_spikes=True,
+                         record_spikes=False,
                          experiment_name=experiment_name)
 #    RetinaL = ret.Retina(label="RetL", dimension_x=dx, dimension_y=dy,
 #                         spike_times=[[1, 25, 26, 27, 40]])
@@ -59,8 +59,8 @@ if __name__ == "__main__":
 
     # Store the results in a file
     disparities = SNN_Network.get_spikes(sort_by_time=True, save_spikes=True)
-    ret_left_spikes = RetinaL.get_spikes(sort_by_time=True, save_spikes=True)
-    ret_right_spikes = RetinaR.get_spikes(sort_by_time=True, save_spikes=True)
+   # ret_left_spikes = RetinaL.get_spikes(sort_by_time=True, save_spikes=True)
+   # ret_right_spikes = RetinaR.get_spikes(sort_by_time=True, save_spikes=True)
 #    membrane_potential = SNN_Network.get_v(save_v=True)
 #     print(disparities)
 #    print(membrane_potential)
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 #     network_dimensions = {'dim_x':dx, 'dim_y':dy, 'min_d':0, 'max_d':max_d}
     Results = vis.Visualizer(network_dimensions=network_dimensions,
                              experiment_name=experiment_name,
-                             spikes_file="./spikes/Back_On_Front_Accel_2xscaled_0_spikes.dat")
+                             spikes_file="./spikes/Back_On_Front_Accel_0_spikes.dat")
     # Results.microensemble_voltage_plot(save_figure=True)
     Results.disparity_histogram(over_time=True, save_figure=True)
     # Results.scatter_animation(dimension=3, save_animation=True, rotate=True)
