@@ -11,19 +11,19 @@ import Simulation as sim
 import Visualizer as vis
 
 if __name__ == "__main__":
-    experiment_name = "NST"
+    experiment_name = "Back_Front"
     experiment_duration = 10000  # in ms
-    dx = 40                    # in pixels
-    dy = 30                    # in pixels
-    max_d = 16                 # in pixels
-    crop_xmin = 40              # in pixels
-    crop_ymin = 50              # in pixels
+    dx = 64                    # in pixels
+    dy = 100                    # in pixels
+    max_d = 20                 # in pixels
+    crop_xmin = 44              # in pixels
+    crop_ymin = 10              # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/NSTlogo_disp12-8-3.dat",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Back_On_Front_Accel_Fixed_even.npz",
                                                   dim_x=dx,
                                                   dim_y=dy,
                                                   crop_xmin=crop_xmin,
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 #     network_dimensions = {'dim_x':dx, 'dim_y':dy, 'min_d':0, 'max_d':max_d}
     Results = vis.Visualizer(network_dimensions=network_dimensions,
                              experiment_name=experiment_name,
-                             spikes_file="./spikes/NST_0_spikes.dat")
+                             spikes_file="./spikes/Back_Front_0_spikes.dat")
     # Results.microensemble_voltage_plot(save_figure=True)
     Results.disparity_histogram(over_time=True, save_figure=True)
     # Results.scatter_animation(dimension=3, save_animation=True, rotate=True)
