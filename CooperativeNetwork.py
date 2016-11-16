@@ -53,18 +53,18 @@ class CooperativeNetwork(object):
                                 'tau_I': 2.0,
                                 'tau_mem': 2.07,
                                 'v_reset_blocker': -84.0,
-                                'v_reset_collector': -90.0}
-            params['synaptic'] = {'wBC': 20.5,  #-20.5: negative won't work. However keep in mind that it is inhibitory!
+                                'v_reset_collector': -90.0} # why -90.0?
+            params['synaptic'] = {'wBC': 18.0,  # -20.5: negative won't work. However keep in mind that it is inhibitory!
                                   'dBC': simulation_time_step,
-                                  'wSC': 20.5,
+                                  'wSC': 18.0,
                                   'dSC': 1.6,
-                                  'wSaB': 22.5,
+                                  'wSaB': 18.0,
                                   'dSaB': simulation_time_step,
-                                  'wSzB': 22.5,    # same story here
+                                  'wSzB': 18.0,    # same story here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': 15.0,    # and again
+                                  'wCCi': 18.0,    # and again
                                   'dCCi': simulation_time_step,
-                                  'wCCe': 3.0,
+                                  'wCCe': 1.8,
                                   'dCCe': simulation_time_step}
             params['topological'] = {'radius_e': 1,
                                      'radius_i': max(self.dim_x, self.dim_y)}
@@ -103,8 +103,8 @@ class CooperativeNetwork(object):
 
         print("INFO: Creating Cooperative Network of size {0} (in microensembles).".format(self.size))
 
-        if record_spikes:
-            from pyNN.spiNNaker import record
+#        if record_spikes:
+#            from pyNN.spiNNaker import record
 
         network = []
         neural_params = self.cell_params['neural']

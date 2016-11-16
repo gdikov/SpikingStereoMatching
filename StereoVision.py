@@ -13,11 +13,11 @@ import Visualizer as vis
 if __name__ == "__main__":
     experiment_name = "Back_Front"
     experiment_duration = 10000  # in ms
-    dx = 64                    # in pixels
-    dy = 100                    # in pixels
-    max_d = 20                 # in pixels
-    crop_xmin = 44              # in pixels
-    crop_ymin = 10              # in pixels
+    dx = 92                    # in pixels
+    dy = 92                    # in pixels
+    max_d = 24                 # in pixels
+    crop_xmin = 16             # in pixels
+    crop_ymin = 0              # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)

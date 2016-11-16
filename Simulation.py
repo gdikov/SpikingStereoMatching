@@ -4,7 +4,7 @@
 # email: gvdikov93@gmail.com
 ###
 
-import pyNN.spiNNaker as ps
+import spynnaker.pyNN as ps
 
 class SNNSimulation(object):
     def __init__(self, simulation_time=1000, simulation_time_step=0.2, threads_count=4):
