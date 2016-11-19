@@ -11,19 +11,19 @@ import Simulation as sim
 import Visualizer as vis
 
 if __name__ == "__main__":
-    experiment_name = "Back_Front"
+    experiment_name = "Pendulum30"
     experiment_duration = 10000  # in ms
-    dx = 92                    # in pixels
-    dy = 92                    # in pixels
-    max_d = 24                 # in pixels
-    crop_xmin = 16             # in pixels
-    crop_ymin = 0              # in pixels
+    dx = 72                   # in pixels 74
+    dy = 84                    # in pixels
+    max_d = 42                 # in pixels
+    crop_xmin = 32             # in pixels 48
+    crop_ymin = 22             # in pixels
 
     # Setup the simulation
     Simulation = sim.SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
-    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/Back_On_Front_Accel_Fixed_even.npz",
+    ExternalRetinaInput = eir.ExternalInputReader(file_path="input_data/pendulum_left_30cm_2.tsv.npz",
                                                   dim_x=dx,
                                                   dim_y=dy,
                                                   crop_xmin=crop_xmin,
@@ -52,7 +52,8 @@ if __name__ == "__main__":
                                          max_disparity=max_d,
                                          record_spikes=True,
                                          record_v=False,
-                                         experiment_name=experiment_name)
+                                         experiment_name=experiment_name,
+                                         verbose=True)
 
     # Start the simulation
     Simulation.run()

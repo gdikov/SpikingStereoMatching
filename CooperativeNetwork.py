@@ -54,18 +54,19 @@ class CooperativeNetwork(object):
                                 'tau_mem': 2.07,
                                 'v_reset_blocker': -84.0,
                                 'v_reset_collector': -90.0} # why -90.0?
-            params['synaptic'] = {'wBC': 18.0,  # -20.5: negative won't work. However keep in mind that it is inhibitory!
+            w=18.0
+            params['synaptic'] = {'wBC': w,  # -20.5: negative won't work. However keep in mind that it is inhibitory!
                                   'dBC': simulation_time_step,
-                                  'wSC': 18.0,
+                                  'wSC': w,
                                   'dSC': 1.6,
-                                  'wSaB': 18.0,
+                                  'wSaB': w,
                                   'dSaB': simulation_time_step,
-                                  'wSzB': 18.0,    # same story here
+                                  'wSzB': w,    # same story here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': 18.0,    # and again
+                                  'wCCi': w,    # and again
                                   'dCCi': simulation_time_step,
                                   'wCCe': 1.8,
-                                  'dCCe': simulation_time_step}
+                                 'dCCe': simulation_time_step}
             params['topological'] = {'radius_e': 1,
                                      'radius_i': max(self.dim_x, self.dim_y)}
         elif simulation_time_step == 0.1:
