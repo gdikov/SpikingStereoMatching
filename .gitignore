@@ -3,4 +3,6 @@
 ./animations
 ./figures
 ./application_generated_data_files
+.idea
+.DS_Store
 
