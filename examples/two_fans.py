@@ -27,7 +27,7 @@ def run_experiment_fans(with_visualization=False):
 
     # Define the input source
     path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 "../data/Back_On_Front_Accel_Fixed_even.npz")
+                                 "../data/input/Back_On_Front_Accel_Fixed_even.npz")
     ExternalRetinaInput = ExternalInputReader(file_path=path_to_input,
                                               dim_x=dx,
                                               dim_y=dy,

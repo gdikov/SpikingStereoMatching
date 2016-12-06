@@ -26,7 +26,7 @@ def run_experiment_pendulum(with_visualization=False):
 
     # Define the input source
     path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 "../data/pendulum_left_30cm_2.tsv.npz")
+                                 "../data/input/pendulum_left_30cm_2.tsv.npz")
     ExternalRetinaInput = ExternalInputReader(file_path=path_to_input,
                                               dim_x=dx,
                                               dim_y=dy,
