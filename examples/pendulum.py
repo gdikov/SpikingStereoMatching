@@ -39,11 +39,11 @@ def run_experiment_pendulum(with_visualization=False):
 
     # Create two instances of Retinas with the respective inputs
     RetinaL = Retina(label="RetL", dimension_x=dx, dimension_y=dy,
-                     spike_times=ExternalRetinaInput.retinaRight,
+                     spike_times=ExternalRetinaInput.retinaLeft,
                      record_spikes=False,
                      experiment_name=experiment_name)
     RetinaR = Retina(label="RetR", dimension_x=dx, dimension_y=dy,
-                     spike_times=ExternalRetinaInput.retinaLeft,
+                     spike_times=ExternalRetinaInput.retinaRight,
                      record_spikes=False,
                      experiment_name=experiment_name)
 

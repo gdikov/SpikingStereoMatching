@@ -6,6 +6,7 @@
 
 import spynnaker.pyNN as ps
 import numpy as np
+import time
 import os
 
 class CooperativeNetwork(object):
@@ -13,7 +14,7 @@ class CooperativeNetwork(object):
     def __init__(self, retinae=None,
                  max_disparity=0, cell_params=None,
                  record_spikes=True, record_v=False, experiment_name="Experiment",
-                 verbose=False):
+                 verbose=True):
         # IMPORTANT NOTE: This implementation assumes min_disparity = 0
 
         assert retinae['left'] is not None and retinae['right'] is not None, \
