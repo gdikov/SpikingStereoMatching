@@ -15,8 +15,8 @@ def run_experiment_bignet(with_visualization=False):
     experiment_name = "NST_scale"
     experiment_duration = 10000  # in ms
     dx = 640  # in pixels
-    dy = 30  # in pixels
-    max_d = 24  # in pixels
+    dy = 4  # in pixels
+    max_d = 200  # in pixels
     crop_xmin = 1  # in pixels
     crop_ymin = 50  # in pixels
 
