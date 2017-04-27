@@ -19,9 +19,13 @@ def run_experiment_nst(with_visualization=False):
     max_d = 24  # in pixels
     crop_xmin = 40  # in pixels
     crop_ymin = 50  # in pixels
+    
+    n_pops = 3* (2 * (dx) * (self.max_d + 1)
+                     - (self.max_d + 1) ** 2
+                     + self.max_d + 1) / 2
 
     # Setup the simulation
-    Simulation = SNNSimulation(simulation_time=experiment_duration)
+    Simulation = SNNSimulation(simulation_time=experiment_duration,n_chips_required=n_pops/16)
 
     # Define the input source
     path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
