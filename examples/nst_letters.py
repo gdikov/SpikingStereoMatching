@@ -7,12 +7,15 @@
 from network import CooperativeNetwork, Retina, ExternalInputReader, SNNSimulation
 import os
 
-def run_experiment_nst(with_visualization=False):
+def run_experiment_nst(noisy=False, with_visualization=False):
     """
     TODO: add experiment description.
 
     """
-    experiment_name = "NST"
+    if noisy:
+        experiment_name = "NST_noisy"
+    else:
+        experiment_name = "NST"
     experiment_duration = 10000  # in ms
     dx = 44  # in pixels
     dy = 30  # in pixels
@@ -28,8 +31,13 @@ def run_experiment_nst(with_visualization=False):
     Simulation = SNNSimulation(simulation_time=experiment_duration,n_chips_required=n_pops/16)
 
     # Define the input source
-    path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 "../data/input/NSTlogo_disp12-8-3.dat")
+    if noisy:
+        path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                     "../data/input/NSTlogo_disp12-8-3_noisy.dat")
+    else:
+        path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                     "../data/input/NSTlogo_disp12-8-3.dat")
+
     ExternalRetinaInput = ExternalInputReader(file_path=path_to_input,
                                               dim_x=dx,
                                               dim_y=dy,
