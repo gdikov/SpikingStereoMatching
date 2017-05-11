@@ -66,8 +66,10 @@ class CooperativeNetwork(object):
                                   'dSzB': simulation_time_step,
                                   'wCCi': w,    # and again
                                   'dCCi': simulation_time_step,
+                                  'wCCo': w/3,  # and again
+                                  'dCCo': simulation_time_step,
                                   'wCCe': 1.8,
-                                 'dCCe': simulation_time_step}
+                                  'dCCe': simulation_time_step}
             params['topological'] = {'radius_e': 1,
                                      'radius_i': max(self.dim_x, self.dim_y)}
         elif simulation_time_step == 0.1:
@@ -262,6 +264,24 @@ class CooperativeNetwork(object):
                                       network[nb][1],
                                       ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCi'],
                                                            delays=self.cell_params['synaptic']['dCCi']),
+                                      target='inhibitory')
+
+        # add quick and dirty the ordering constraint
+        for i in range(len(nbhoodExcX)):
+            for current_row_pop in nbhoodExcX[i]:
+                if i - 1 >= 0:
+                    for upper_pop in nbhoodExcX[i-1]:
+                        ps.Projection(network[current_row_pop][1],
+                                      network[upper_pop][1],
+                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
+                                                           delays=self.cell_params['synaptic']['dCCo']),
+                                      target='inhibitory')
+                if i + 1 < len(nbhoodExcX):
+                    for lower_pop in nbhoodExcX[i+1]:
+                        ps.Projection(network[current_row_pop][1],
+                                      network[lower_pop][1],
+                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
+                                                           delays=self.cell_params['synaptic']['dCCo']),
                                       target='inhibitory')
 
         for diag in nbhoodExcX:
