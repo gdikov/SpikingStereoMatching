@@ -267,22 +267,20 @@ class CooperativeNetwork(object):
                                       target='inhibitory')
 
         # add quick and dirty the ordering constraint
-        for i in range(len(nbhoodExcX)):
-            for current_row_pop in nbhoodExcX[i]:
-                if i - 1 >= 0:
-                    for upper_pop in nbhoodExcX[i-1]:
-                        ps.Projection(network[current_row_pop][1],
-                                      network[upper_pop][1],
-                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
-                                                           delays=self.cell_params['synaptic']['dCCo']),
-                                      target='inhibitory')
-                if i + 1 < len(nbhoodExcX):
-                    for lower_pop in nbhoodExcX[i+1]:
-                        ps.Projection(network[current_row_pop][1],
-                                      network[lower_pop][1],
-                                      ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
-                                                           delays=self.cell_params['synaptic']['dCCo']),
-                                      target='inhibitory')
+        import scipy.sparse as sps
+        network_topology = sps.diags(nbhoodExcX, [-x for x in range(self.max_disparity + 1)], dtype=np.int).toarray()
+        network_topology[network_topology == 0] = -1
+        network_topology[0, 0] = 0
+        diags = [network_topology[::-1, :].diagonal(i) for i in xrange(-self.max_disparity-1, self.max_disparity+2)]
+        diags = [y for y in [x[x >= 0] for x in diags] if len(y) > 1]
+        from itertools import product
+        for pair in diags:
+            for src, dst in filter(lambda x: x[0] != x[1], product(pair, pair)):
+                ps.Projection(network[src][1],
+                              network[dst][1],
+                              ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
+                                                   delays=self.cell_params['synaptic']['dCCo']),
+                              target='inhibitory')
 
         for diag in nbhoodExcX:
             for pop in diag:
