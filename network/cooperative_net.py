@@ -55,18 +55,18 @@ class CooperativeNetwork(object):
                                 'tau_mem': 2.07,
                                 'v_reset_blocker': -84.0,
                                 'v_reset_collector': -90.0} # why -90.0?
-            w=18.0
-            params['synaptic'] = {'wBC': w,  # -20.5: negative won't work. However keep in mind that it is inhibitory!
+            w = 18.0
+            params['synaptic'] = {'wBC': -w,  # -20.5: negative won't work. However keep in mind that it is inhibitory!
                                   'dBC': simulation_time_step,
                                   'wSC': w,
                                   'dSC': 1.6,
                                   'wSaB': w,
                                   'dSaB': simulation_time_step,
-                                  'wSzB': w,    # same story here
+                                  'wSzB': -w,    # same story here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': w,    # and again
+                                  'wCCi': -w,    # and again
                                   'dCCi': simulation_time_step,
-                                  'wCCo': w/3,  # and again
+                                  'wCCo': -w/3,  # and again
                                   'dCCo': simulation_time_step,
                                   'wCCe': 1.8,
                                   'dCCe': simulation_time_step}
@@ -267,20 +267,20 @@ class CooperativeNetwork(object):
                                       target='inhibitory')
 
         # add quick and dirty the ordering constraint
-        import scipy.sparse as sps
-        network_topology = sps.diags(nbhoodExcX, [-x for x in range(self.max_disparity + 1)], dtype=np.int).toarray()
-        network_topology[network_topology == 0] = -1
-        network_topology[0, 0] = 0
-        diags = [network_topology[::-1, :].diagonal(i) for i in xrange(-self.max_disparity-1, self.max_disparity+2)]
-        diags = [y for y in [x[x >= 0] for x in diags] if len(y) > 1]
-        from itertools import product
-        for pair in diags:
-            for src, dst in filter(lambda x: x[0] != x[1], product(pair, pair)):
-                ps.Projection(network[src][1],
-                              network[dst][1],
-                              ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
-                                                   delays=self.cell_params['synaptic']['dCCo']),
-                              target='inhibitory')
+        # import scipy.sparse as sps
+        # network_topology = sps.diags(nbhoodExcX, [-x for x in range(self.max_disparity + 1)], dtype=np.int).toarray()
+        # network_topology[network_topology == 0] = -1
+        # network_topology[0, 0] = 0
+        # diags = [network_topology[::-1, :].diagonal(i) for i in xrange(-self.max_disparity-1, self.max_disparity+2)]
+        # diags = [y for y in [x[x >= 0] for x in diags] if len(y) > 1]
+        # from itertools import product
+        # for pair in diags:
+        #     for src, dst in filter(lambda x: x[0] != x[1], product(pair, pair)):
+        #         ps.Projection(network[src][1],
+        #                       network[dst][1],
+        #                       ps.OneToOneConnector(weights=self.cell_params['synaptic']['wCCo'],
+        #                                            delays=self.cell_params['synaptic']['dCCo']),
+        #                       target='inhibitory')
 
         for diag in nbhoodExcX:
             for pop in diag:
