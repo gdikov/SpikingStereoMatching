@@ -18,7 +18,7 @@ def run_experiment_head(with_visualization=False):
     crop_ymin = 25  # in pixels
 
     # Setup the simulation
-    Simulation = SNNSimulation(simulation_time=experiment_duration, n_chips_required=700)
+    Simulation = SNNSimulation(simulation_time=experiment_duration, n_chips_required=800)
 
     # Define the input source
     path_to_input = os.path.join(os.path.dirname(os.path.realpath(__file__)),
