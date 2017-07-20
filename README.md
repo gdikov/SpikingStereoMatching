@@ -1,9 +1,9 @@
 # Spiking Stereo Matching
 
-**Update: hybrid stereo matching**
+**Update:**
 The SNN architecture presented here is reimplemented in a cleaner and more efficient way in 
 [hybrid-stereo-matching](https://github.com/gdikov/hybrid-stereo-matching). Although the latter repository is dedicated
-to a slightly different algorithm, the SNN is essentially the same and all experiments from [1] can be reproduced 
+to a slightly different task, the SNN is essentially the same and all experiments from [1] can be reproduced 
 using suitable configuration files. For more details on how to do this, see the subsection *SNN only* in
 *Running custom experiments* described in the README there.
 
@@ -19,7 +19,7 @@ The network has been tested both on a local SpiNNaker machine and on the HBP pla
 
 In order to reproduce an experiment just select the desired in `main.py`. If you are interested in running the network on
 your own dataset, then see in `examples` one of the existing experiments and add your own `custom_experiment.py` 
-accordingly. The input and output data is normally stored under `data/input` and `data/output` respectively. 
+accordingly. The input and output data is normally stored under `data/input` and `spikes` respectively. 
 
 In addition to the evaluation presented in [1], you can find animations with the network output at 
 [https://figshare.com/s/0d9fb146149b832ed8ec](https://figshare.com/s/0d9fb146149b832ed8ec) 
