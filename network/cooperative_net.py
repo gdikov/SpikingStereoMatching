@@ -1,13 +1,8 @@
-###
-# Date: August 2016
-# Author: Georgi Dikov
-# email: gvdikov93@gmail.com
-###
-
 import spynnaker.pyNN as ps
 import numpy as np
 import time
 import os
+
 
 class CooperativeNetwork(object):
 
